@@ -30,7 +30,7 @@ for line in parsed_lines:
     if len(line) == 3:
         opcode = tables.OPCODES.get(line[1].strip().upper())
         intermediate_list.append(tables.Line(label=line[0],
-                                                opcode=opcode.opcode if opcode else None,
+                                                opcode=opcode,
                                                 operand=line[2],
                                                 object_code=None,
                                                 location_counter=None,
@@ -38,15 +38,15 @@ for line in parsed_lines:
     elif len(line) == 2:
         opcode = tables.OPCODES.get(line[0].strip().upper())
         intermediate_list.append(tables.Line(label=None,
-                                                opcode=opcode.opcode if opcode else None,
+                                                opcode=opcode,
                                                 operand=line[1],
                                                 object_code=None,
                                                 location_counter=None,
                                                 block=None))
     elif len(line) == 1:
         opcode = tables.OPCODES.get(line[0].strip().upper())
-        intermediate_list.append(tables.Line(label=None,
-                                                opcode=opcode.opcode if opcode else None,
+        intermediate_list.append(tables.Line( label=None,
+                                                opcode=opcode,
                                                 operand=None,
                                                 object_code=None,
                                                 location_counter=None,
@@ -55,5 +55,4 @@ for line in parsed_lines:
 print(f"LC\tLABEL\tOPCODE\tOPERAND\tOBJECT_CODE")
 print("--" * 20)
 for line in intermediate_list:
-    # print(line)
-    pass
+    print(line)
