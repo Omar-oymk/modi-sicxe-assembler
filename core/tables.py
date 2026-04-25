@@ -3,14 +3,15 @@ from dataclasses import dataclass
 @dataclass
 class Line:
     label: str | None
-    opcode: Opcode | None
+    Instruction: str
+    opcode: Opcode | None   # optional if it is actually an opcode, None if it is a directive
     operand: str | None
     object_code: str | None
     location_counter: int | None
     block: str | None
 
     def __str__(self):
-        return f"{self.location_counter}\t{self.label}\t{self.opcode.mnemonic if self.opcode else None}\t{self.operand}\t\t{self.object_code}" # type: ignore
+        return f"{self.location_counter}\t{self.label if self.label else ''}\t{self.Instruction}\t{self.operand}\t\t{self.object_code}" # type: ignore
 
 @dataclass
 class Opcode:
