@@ -28,7 +28,7 @@ def preprocess_and_print_lines():
         # remove comments
         print(line)
 
-    for line in parsed_lines:
+    for i, line in enumerate(parsed_lines):
         line = line.strip()
 
         if line == "":
@@ -36,12 +36,27 @@ def preprocess_and_print_lines():
     
         # remove comments
         line = re.split(r'\s*;\s*', line)[0]    # split by ; and take the first part
+
+        if line == "":
+            continue
         # split lines based on spaces
-        line = re.split(r'\s+', line)
+        line = re.split(r'\s+', line)   # this is not the best as it gives errors for the edge case of BYTE C'HELLO, WORLD' but we will handle that later
+        if line == "":
+            continue
         print(line)
-    
+
+
         # construct the objects and append them to the intermediate list
         if len(line) == 3:
+
+            if not valid_instruction(line[1]):
+                # break
+                # raise an error
+                # and generate an error.txt file with the error message
+                with open(Path("output") / "error.txt", "w") as f:
+                    f.write(f"ERROR OCCURED IN LINE: {i+1}: {line}\nPROGRAM TERMINATED AT PASS 1.")
+                raise ValueError(f"Invalid instruction: {line[1]}")
+
             opcode = tables.OPCODES.get(line[1].strip().upper())
             intermediate_list.append(tables.Line(label=line[0],
                                                     Instruction=line[1],
@@ -51,6 +66,15 @@ def preprocess_and_print_lines():
                                                     location_counter=None,
                                                     block=None))
         elif len(line) == 2:
+
+            if not valid_instruction(line[0]):
+                # break
+                # raise an error
+                # and generate an error.txt file with the error message
+                with open(Path("output") / "error.txt", "w") as f:
+                    f.write(f"ERROR OCCURED IN LINE: {i+1}: {line}\nPROGRAM TERMINATED AT PASS 1.")
+                raise ValueError(f"Invalid instruction: {line[0]}")
+
             opcode = tables.OPCODES.get(line[0].strip().upper())
             intermediate_list.append(tables.Line(label=None,
                                                     Instruction=line[0],
@@ -60,6 +84,15 @@ def preprocess_and_print_lines():
                                                     location_counter=None,
                                                     block=None))
         elif len(line) == 1:
+
+            if not valid_instruction(line[0]):
+                # break
+                # raise an error
+                # and generate an error.txt file with the error message
+                with open(Path("output") / "error.txt", "w") as f:
+                    f.write(f"ERROR OCCURED IN LINE: {i+1}: {line}\nPROGRAM TERMINATED AT PASS 1.")
+                raise ValueError(f"Invalid instruction: {line[0]}")
+
             opcode = tables.OPCODES.get(line[0].strip().upper())
             intermediate_list.append(tables.Line( label=None,
                                                     Instruction=line[0],
@@ -73,6 +106,9 @@ def preprocess_and_print_lines():
     print("--" * 30)
     for line in intermediate_list:
         print(line)
+
+def valid_instruction(instruction: str):
+    return instruction.upper() in tables.OPCODES or instruction.upper() in tables.DIRECTIVES
 
 
 preprocess_and_print_lines()
