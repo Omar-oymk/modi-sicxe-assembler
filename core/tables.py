@@ -85,3 +85,43 @@ DIRECTIVES = {
     "START", "END", "BYTE", "WORD", "RESB", "RESW", "EQU", "USE", "BASE"
 }
 
+def HANDLE_DIRECTIVES(directive: str, lc, operand, prev_operand = None):
+    if directive == "START":
+        lc = int(operand, 16)
+    elif directive == "END":
+        pass
+    elif directive == "BYTE":
+        lc += 0x0001
+    elif directive == "WORD":
+        lc += 0x0003
+    elif directive == "RESB":
+        lc += operand
+    elif directive == "RESW":
+        lc += int(operand, 16) * 3
+    elif directive == "EQU":
+        pass
+    elif directive == "USE":   
+        # needs adjustments and more research on how to handle blocks 
+        """
+        NEED TO CHECK FOR EXAMPLES CASES LIKE 
+        0000
+        0002
+        0004
+        0006
+        USE DEFAULTB
+        0000
+        0003
+        0007
+        000A
+        USE DEFAULT
+        
+        THE QUESTION IS SHOULD IT BE 
+        0008 OR 0000 (aka: continue counting from last location counter on default block or start again)
+        """
+        if prev_operand == operand:
+            pass
+        else:
+            lc = 0x0000
+    elif directive == "BASE":
+        pass
+    return lc

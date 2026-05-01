@@ -10,7 +10,6 @@ FIRST   CLEAR   X
         STA     BETA
         LDA     @GAMMA
         +LDX    ALPHA
-        HOBA    #5321   ; THIS IS ANOTHER EDGE CASE IT SHOULD GIVE AN ERROR
         ADD     &X'0F'
         STCH    GAMMA,X
         RSUB
@@ -19,8 +18,6 @@ ALPHA   WORD    5
 BETA    RESW    1
 BASEVAL WORD    4096
         USE     CBLKS
-        Hello   BYTE    C'HELLO, WORLD'         ; THIS IS AN EDGE CASE TAKE CARE OF IT
-        HELLO   BYTE C'Hello'
 
         ; THIS IS A COMMENT
         ; THIS IS ANOTHER COMMENT

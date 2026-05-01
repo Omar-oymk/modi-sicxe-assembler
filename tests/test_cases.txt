@@ -1,0 +1,2 @@
+        Hello   BYTE    C'HELLO, WORLD'         ; THIS IS AN EDGE CASE TAKE CARE OF IT
+        HELLO   BYTE C'Hello'
