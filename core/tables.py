@@ -3,15 +3,16 @@ from dataclasses import dataclass
 @dataclass
 class Line:
     label: str | None
-    Instruction: str
+    instruction: str
     opcode: Opcode | None   # optional if it is actually an opcode, None if it is a directive
     operand: str | None
     object_code: str | None
-    location_counter: int | None
+    location_counter: str | None
     block: str | None
 
     def __str__(self):
-        return f"{self.location_counter}\t{self.label if self.label else ''}\t{self.Instruction}\t{self.operand}\t\t{self.object_code}" # type: ignore
+        return f"{self.location_counter}\t{self.label if self.label else ''}\t{self.instruction}\t{self.operand}\t\t{self.object_code}" # type: ignore
+
 
 @dataclass
 class Opcode:
@@ -87,15 +88,15 @@ DIRECTIVES = {
 
 def HANDLE_DIRECTIVES(directive: str, lc, operand, prev_operand = None):
     if directive == "START":
-        lc = int(operand, 16)
+        lc += 0 
     elif directive == "END":
         pass
     elif directive == "BYTE":
-        lc += 0x0001
+        lc += 1
     elif directive == "WORD":
-        lc += 0x0003
+        lc += 3
     elif directive == "RESB":
-        lc += operand
+        lc += int(operand, 16)
     elif directive == "RESW":
         lc += int(operand, 16) * 3
     elif directive == "EQU":
@@ -121,7 +122,7 @@ def HANDLE_DIRECTIVES(directive: str, lc, operand, prev_operand = None):
         if prev_operand == operand:
             pass
         else:
-            lc = 0x0000
+            lc = 0
     elif directive == "BASE":
         pass
     return lc
