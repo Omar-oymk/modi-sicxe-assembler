@@ -95,6 +95,18 @@ DIRECTIVES = {
     "START", "END", "BYTE", "WORD", "RESB", "RESW", "EQU", "USE", "BASE"
 }
 
+REGISTER_MAP = {
+    "A": 0,
+    "X": 1,
+    "L": 2,
+    "B": 3,
+    "S": 4,
+    "T": 5,
+    "F": 6,
+    "PC": 8,
+    "SW": 9
+}
+
 def HANDLE_DIRECTIVES(directive: str, lc, operand, prev_operand = None):
     if directive == "START":
         lc += 0 
