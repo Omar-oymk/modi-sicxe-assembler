@@ -427,6 +427,33 @@ def assemble_format3(line, symtab, pooltab, base_register):
         f"Address out of range for format 3 at LC={line.location_counter:04X}, target={target:04X}"
     )
 
+
+def assemble_format4(line, symtab, pooltab):
+
+    operand_info = resolve_operand(line.operand, symtab, pooltab)
+
+    if operand_info is None:
+        return None
+
+    target = operand_info["target"]
+    n = operand_info["n"]
+    i = operand_info["i"]
+    x = operand_info["x"]
+
+    return generate_format4_object_code(
+        opcode=line.opcode.opcode,
+        n=n,
+        i=i,
+        x=x,
+        b=0,
+        p=0,
+        e=1,
+        address=target
+    )
+
+def assemble_format2(line):
+    return f"{line.opcode.opcode:02X}"
+
 #------------------------------------------------------------------------------------
 intermediate_table = []
 symbol_table = {}
