@@ -452,7 +452,24 @@ def assemble_format4(line, symtab, pooltab):
     )
 
 def assemble_format2(line):
-    return f"{line.opcode.opcode:02X}"
+
+    opcode = line.opcode.opcode
+
+    r1 = 0
+    r2 = 0
+
+    if line.operand:
+
+        parts = line.operand.split(",")
+
+        r1 = tables.REGISTER_MAP.get(parts[0].strip(), 0)
+
+        if len(parts) == 2:
+            r2 = tables.REGISTER_MAP.get(parts[1].strip(), 0)
+
+    object_code = (opcode << 8) | (r1 << 4) | r2
+
+    return f"{object_code:04X}"
 
 #------------------------------------------------------------------------------------
 intermediate_table = []
