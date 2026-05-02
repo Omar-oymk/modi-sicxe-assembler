@@ -471,6 +471,11 @@ def assemble_format2(line):
 
     return f"{object_code:04X}"
 
+
+def assemble_format1(line):
+    opcode = line.opcode.opcode
+    return f"{opcode:02X}"
+
 #------------------------------------------------------------------------------------
 intermediate_table = []
 symbol_table = {}
