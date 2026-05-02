@@ -1,6 +1,12 @@
 from dataclasses import dataclass
 
 @dataclass
+class Opcode:
+    mnemonic: str
+    format: int
+    opcode: int
+
+@dataclass
 class Line:
     label: str | None
     instruction: str
@@ -12,13 +18,6 @@ class Line:
 
     def __str__(self):
         return f"{self.location_counter}\t{self.label if self.label else ''}\t{self.instruction}\t{self.operand}\t\t{self.object_code}" # type: ignore
-
-
-@dataclass
-class Opcode:
-    mnemonic: str
-    format: int
-    opcode: int
 
 OPCODES = {
     "ADD": Opcode("ADD", 3, 0x18),
