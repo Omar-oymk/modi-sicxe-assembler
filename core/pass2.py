@@ -154,9 +154,9 @@ def parse_blockTable():
 
     return block_table
 
-
+# hattzbattt
 def parse_poolTable():
-    pool_list = []
+    pool_table = {}
 
     file_path = Path(__file__).parents[1] / "output" / "poolTable.txt"
 
@@ -190,21 +190,16 @@ def parse_poolTable():
         except ValueError:
             continue
 
-        pool_list.append({
-            "name": name,
-            "address": address,
-            "length": length,
-            "object_code": object_code
-        })
+        pool_table[name] = address
 
-    return pool_list
+    return pool_table
 
 #----------------------------------------------------------------------------------
 
-def get_absolute_address(lc):
-    return blocktab[current_block] + lc
+def get_absolute_address(lc, current_block, block_table):
+    return block_table[current_block]["address"] + lc
 
-def resolve_operand(operand, symtab, pooltab):
+def resolve_operand(operand, symtab, pooltab, current_block, block_table):
 
     result = {
         "target": None,
@@ -213,65 +208,45 @@ def resolve_operand(operand, symtab, pooltab):
         "x": 0
     }
 
-    # instructions without operands (e.g. RSUB)
     if operand is None:
         return result
 
-    # indexed
     if ",X" in operand.upper():
         result["x"] = 1
-        operand = operand.replace(",X", "")
+        operand = operand.replace(",X", "").replace(",x", "")
 
-    # immediate
     if operand.startswith("#"):
-
         result["n"] = 0
         result["i"] = 1
-
         value = operand[1:]
-
-        # constant
         if value.isdigit():
             result["target"] = int(value)
-
-        # symbol
         else:
-            try:
-                result["target"] = get_absolute_address(symtab[value])
-            except KeyError:
+            if value not in symtab:
                 print(f"Symbol not found: {value}")
                 return None
+            result["target"] = symtab[value]  # already absolute
 
-    # indirect
     elif operand.startswith("@"):
-
         result["n"] = 1
         result["i"] = 0
-
         symbol = operand[1:]
-        try:
-            result["target"] = get_absolute_address(symtab[symbol])
-        except KeyError:
+        if symbol not in symtab:
             print(f"Symbol not found: {symbol}")
             return None
+        result["target"] = symtab[symbol]  # already absolute
 
-    # literal pool
     elif operand.startswith("&"):
-
-        try:
-            result["target"] = get_absolute_address(pooltab[operand])
-        except KeyError:
+        if operand not in pooltab:
             print(f"Literal not found: {operand}")
             return None
+        result["target"] = pooltab[operand]  # already absolute (stored as address in parse_poolTable)
 
-    # simple
     else:
-
-        try:
-            result["target"] = get_absolute_address(symtab[operand])
-        except KeyError:
+        if operand not in symtab:
             print(f"Symbol not found: {operand}")
             return None
+        result["target"] = symtab[operand]  # already absolute
 
     return result
 
@@ -377,11 +352,11 @@ def generate_format4_object_code(
 
 #------------------------------------------------------------------------------------
 
-def assemble_format3(line, symtab, pooltab, base_register):
+def assemble_format3(line, symtab, pooltab, base_register, current_block, block_table):
 
-    operand_info = resolve_operand(line.operand, symtab, pooltab)
+    operand_info = resolve_operand(line.operand, symtab, pooltab, current_block, block_table)
 
-    if operand_info is None:
+    if operand_info is None or operand_info["target"] is None:  # add this guard
         return None
 
     target = operand_info["target"]
@@ -428,9 +403,9 @@ def assemble_format3(line, symtab, pooltab, base_register):
     )
 
 
-def assemble_format4(line, symtab, pooltab):
+def assemble_format4(line, symtab, pooltab, current_block, block_table):
 
-    operand_info = resolve_operand(line.operand, symtab, pooltab)
+    operand_info = resolve_operand(line.operand, symtab, pooltab, current_block, block_table)
 
     if operand_info is None:
         return None
@@ -476,56 +451,147 @@ def assemble_format1(line):
     opcode = line.opcode.opcode
     return f"{opcode:02X}"
 
+
+def assemble_byte(operand, line=None):
+    operand = operand.strip()
+
+    # Character constant: C'EOF'
+    if operand.startswith("C'") and operand.endswith("'"):
+        chars = operand[2:-1]
+
+        if chars == "":
+            raise ValueError(f"Empty BYTE C constant at line: {line}")
+
+        return ''.join(f"{ord(c):02X}" for c in chars)
+
+    # Hex constant: X'F1'
+    elif operand.startswith("X'") and operand.endswith("'"):
+        hex_part = operand[2:-1]
+
+        if any(c not in "0123456789ABCDEFabcdef" for c in hex_part):
+            raise ValueError(f"Invalid HEX in BYTE at line {line}: {operand}")
+
+        return hex_part.upper()
+
+    else:
+        raise ValueError(f"""
+        BYTE FORMAT ERROR at line {line}
+        Invalid operand: {operand}""")
+    
+def assemble_word(operand, symtab=None):
+    operand = operand.strip()
+
+    # If it's a symbol
+    if symtab and operand in symtab:
+        value = symtab[operand]
+    else:
+        # supports decimal, hex, and numeric strings
+        try:
+            value = int(operand, 0)
+        except ValueError:
+            raise ValueError(f"Invalid WORD operand: {operand}")
+
+    # 3-byte signed range check (SIC/XE WORD = 24-bit)
+    if not (-2**23 <= value <= 2**24 - 1):
+        raise ValueError(f"WORD out of range: {value}")
+
+    # convert to 24-bit hex in case of negative values, we want the 2's complement hex representation to cap the negative value in 3 bytes
+    return f"{value & 0xFFFFFF:06X}"
+
+
+def handle_directive(line, symtab):
+
+    instr = line.instruction.upper()
+
+    if instr == "BYTE":
+        return assemble_byte(line.operand, line.location_counter)
+
+    elif instr == "WORD":
+        return assemble_word(line.operand, symtab)
+
+    elif instr in ["RESB", "RESW", "START", "END", "BASE", "USE"]:
+        return None
+
+    return None
+
+
+def assemble_line(line, symtab, pooltab, base_register, current_block, block_table):
+    
+    if line.opcode is None:
+        return handle_directive(line, symtab)
+    
+    if line.instruction.startswith("+"):
+        return assemble_format4(line, symtab, pooltab, current_block, block_table)
+    
+    elif line.opcode.format == 1:
+        return assemble_format1(line)
+
+    elif line.opcode.format == 2:
+        return assemble_format2(line)
+
+    elif line.opcode.format == 3:
+        return assemble_format3(line, symtab, pooltab, base_register, current_block, block_table)
+    
+    raise ValueError(f"Unknown instruction format: {line}")
+
+
 #------------------------------------------------------------------------------------
-intermediate_table = []
-symbol_table = {}
-block_table = {}
-pool_table = {}
 
-symtab = parse_symtab()
-blocktab = parse_blockTable()
-
-current_block = "DEFAULT"
-base_register = None
-lc = 0
 
 
 def pass_2():
 
-    for line in parse_intermediate():
+    intermediate_table = []
+    symbol_table = {}
+    block_table = {}
+    pool_table = {}
+
+
+    current_block = "DEFAULT"
+    base_register = None
+    lc = 0
+
+    symbol_table = parse_symtab()
+    block_table = parse_blockTable()
+    pool_table = parse_poolTable()
+    intermediate_table = parse_intermediate()
+
+    # DEBUG — remove after fixing
+    print("=== SYMTAB ===")
+    for k, v in symbol_table.items():
+        print(f"  {k!r}: {v:04X}")
+
+    print("=== POOLTAB ===")
+    for k, v in pool_table.items():
+        print(f"  {k!r}: {v:04X}")
+
+    print("=== BLOCK TABLE ===")
+    for k, v in block_table.items():
+        print(f"  {k!r}: {v}")
+
+    for i, line in enumerate(intermediate_table):
         if line.instruction.upper() == "USE":
             current_block = line.operand if line.operand else "DEFAULT"
             continue
 
         elif line.instruction.upper() == "BASE":
-            base_register = line.operand
+            base_symbol = line.operand
+            base_register = symbol_table.get(base_symbol)
+            if base_register is None:
+                print(f"Warning: BASE symbol '{base_symbol}' not found in symtab")
             continue
 
         elif line.instruction.upper() == "END":
             break
 
         # handle directives (not complete - just set location counter for now)
-        elif tables.is_a_directive(line.instruction):
-            line.location_counter = get_absolute_address(lc)
-            continue
+        intermediate_table[i].object_code=assemble_line(line, symbol_table, pool_table, base_register, current_block, block_table)
 
-        # handle instructions (not complete - just set location counter for now)
-        elif line.opcode:
-            line.location_counter = get_absolute_address(lc)
-            continue
+        print(line.location_counter, line.instruction, line.object_code)
 
 
 def test():
-    print(generate_format3_object_code(
-    opcode=0x00,   # LDA
-    n=1,
-    i=1,
-    x=0,
-    b=0,
-    p=1,
-    e=0,
-    disp=0x01E
-    ))
+    pass_2()
 
 if __name__ == '__main__':
     test()
