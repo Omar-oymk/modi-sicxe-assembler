@@ -237,7 +237,7 @@ def resolve_operand(operand, symtab, pooltab):
         # symbol
         else:
             try:
-                result["target"] = symtab[value]
+                result["target"] = get_absolute_address(symtab[value])
             except KeyError:
                 print(f"Symbol not found: {value}")
                 return None
@@ -250,7 +250,7 @@ def resolve_operand(operand, symtab, pooltab):
 
         symbol = operand[1:]
         try:
-            result["target"] = symtab[symbol]
+            result["target"] = get_absolute_address(symtab[symbol])
         except KeyError:
             print(f"Symbol not found: {symbol}")
             return None
@@ -259,7 +259,7 @@ def resolve_operand(operand, symtab, pooltab):
     elif operand.startswith("&"):
 
         try:
-            result["target"] = pooltab[operand]
+            result["target"] = get_absolute_address(pooltab[operand])
         except KeyError:
             print(f"Literal not found: {operand}")
             return None
@@ -268,7 +268,7 @@ def resolve_operand(operand, symtab, pooltab):
     else:
 
         try:
-            result["target"] = symtab[operand]
+            result["target"] = get_absolute_address(symtab[operand])
         except KeyError:
             print(f"Symbol not found: {operand}")
             return None
@@ -374,6 +374,58 @@ def generate_format4_object_code(
     )
 
     return f"{object_code:08X}"
+
+#------------------------------------------------------------------------------------
+
+def assemble_format3(line, symtab, pooltab, base_register):
+
+    operand_info = resolve_operand(line.operand, symtab, pooltab)
+
+    if operand_info is None:
+        return None
+
+    target = operand_info["target"]
+    n = operand_info["n"]
+    i = operand_info["i"]
+    x = operand_info["x"]
+
+    pc = line.location_counter + 3  # PC points to next instruction
+
+    # try PC-relative first
+    pc_result = calculate_pc_relative(target, pc)
+
+    if pc_result["valid"]:
+        return generate_format3_object_code(
+            opcode=line.opcode.opcode,
+            n=n,
+            i=i,
+            x=x,
+            b=pc_result["b"],
+            p=pc_result["p"],
+            e=0,
+            disp=pc_result["disp"]
+        )
+
+    # if PC-relative not possible, try base-relative
+    elif base_register is not None:
+        base_result = calculate_base_relative(target, base_register)
+
+        if base_result["valid"]:
+            return generate_format3_object_code(
+                opcode=line.opcode.opcode,
+                n=n,
+                i=i,
+                x=x,
+                b=base_result["b"],
+                p=base_result["p"],
+                e=0,
+                disp=base_result["disp"]
+            )
+
+    # if neither works, we have an error (needs to be handled and written to and error file)
+    raise ValueError(
+        f"Address out of range for format 3 at LC={line.location_counter:04X}, target={target:04X}"
+    )
 
 #------------------------------------------------------------------------------------
 intermediate_table = []
