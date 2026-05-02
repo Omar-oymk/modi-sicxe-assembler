@@ -198,7 +198,15 @@ def parse_poolTable():
         })
 
     return pool_list
+###################################################################################################
 
+def get_absolute_address(lc):
+    return blocktab[current_block] + lc
+
+
+
+
+##########################################################################################
 intermediate_table = []
 symbol_table = {}
 block_table = {}
@@ -214,8 +222,8 @@ lc = 0
 
 def pass_2():
 
-
-    print(parse_intermediate())
+    for line in parse_intermediate():
+        print(line)
 
 if __name__ == '__main__':
     pass_2()
