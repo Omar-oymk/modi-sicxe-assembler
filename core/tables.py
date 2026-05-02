@@ -7,6 +7,16 @@ class Opcode:
     opcode: int
 
 @dataclass
+class Pass2_Line:
+    location_counter: int | None
+    label: str | None
+    instruction: str
+    operand: str | None
+    opcode: Opcode | None
+    object_code: str | None
+    block: str | None
+
+@dataclass
 class Line:
     label: str | None
     instruction: str
