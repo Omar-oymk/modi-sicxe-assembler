@@ -3,12 +3,6 @@ from pathlib import Path
 from parser import is_a_directive, line_list, valid_instruction
 import tables
 
-intermediate_table = []
-symbol_table = []
-block_table = []
-pool_table = []
-lc = 0
-
 def is_hex(value):
     try:
         int(value, 16)
@@ -105,92 +99,60 @@ def parse_intermediate():
     return intermediate_list
 
 
-def parse_symbTable():
-    symbol_list = []
+def parse_symtab():
+    symtab = {}
 
     file_path = Path(__file__).parents[1] / "output" / "symbTable.txt"
 
     with open(file_path, "r") as f:
-        lines = f.readlines()
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
 
-    for line in lines:
-        line = line.strip()
+            parts = re.split(r'\s+', line)
+            if len(parts) < 2:
+                continue
 
-        if not line:
-            continue
+            symbol = parts[0]
+            address = int(parts[1], 16)
 
-        parts = re.split(r'\s+', line)
+            symtab[symbol] = address
 
-        # skip invalid lines
-        if len(parts) < 2:
-            continue
-
-        symbol = parts[0]
-        address = parts[1]
-
-        # ignore headers if they exist
-        if symbol.lower() in ["symbol", "label"]:
-            continue
-
-        try:
-            address = int(address, 16)
-        except ValueError:
-            continue
-
-        symbol_list.append({
-            "symbol": symbol,
-            "address": address
-        })
-
-    return symbol_list
+    return symtab
 
 def parse_blockTable():
-    block_list = []
+    block_table = {}
 
     file_path = Path(__file__).parents[1] / "output" / "blockTable.txt"
 
     with open(file_path, "r") as f:
-        lines = f.readlines()
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
 
-    for line in lines:
-        line = line.strip()
+            parts = re.split(r'\s+', line)
 
-        if not line:
-            continue
+            # skip header/footer
+            if parts[0].lower() in ["block", "total"]:
+                continue
 
-        parts = re.split(r'\s+', line)
+            if len(parts) < 4:
+                continue
 
-        # skip header
-        if parts[0].lower() == "block":
-            continue
+            name = parts[0]
+            number = int(parts[1])
+            address = int(parts[2], 16)
+            size = int(parts[3], 16)
 
-        # skip footer line
-        if parts[0].lower() == "total":
-            continue
+            block_table[name] = {
+                "number": number,
+                "address": address,
+                "size": size
+            }
 
-        if len(parts) < 4:
-            continue
-
-        name = parts[0]
-        number = parts[1]
-        address = parts[2]
-        size = parts[3]
-
-        try:
-            number = int(number)
-            address = int(address, 16)
-            size = int(size, 16)
-        except ValueError:
-            continue
-
-        block_list.append({
-            "name": name,
-            "number": number,
-            "address": address,
-            "size": size
-        })
-
-    return block_list
+    return block_table
 
 
 def parse_poolTable():
@@ -237,10 +199,21 @@ def parse_poolTable():
 
     return pool_list
 
+intermediate_table = []
+symbol_table = {}
+block_table = {}
+pool_table = {}
+
+symtab = parse_symtab()
+blocktab = parse_blockTable()
+
+current_block = "DEFAULT"
+base_register = None
+lc = 0
+
 
 def pass_2():
-    # print(line_list[4].opcode) # type: ignore
-    # intermediate_table = parse_intermediate()
+
 
     print(parse_intermediate())
 
