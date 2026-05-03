@@ -88,7 +88,7 @@ def parse_intermediate():
                 tables.Pass2_Line(
                     location_counter=None,
                     label=None,
-                    instruction=instr,
+                    instruction=instr,  # type: ignore
                     operand=operand,
                     opcode=None,
                     object_code=None,
