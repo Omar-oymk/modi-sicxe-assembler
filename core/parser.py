@@ -99,7 +99,7 @@ def preprocess_and_print_lines():
             if is_a_directive(line[0]) and line[0].upper() == 'START':
                 current_lc = tables.HANDLE_DIRECTIVES(line[0].upper(), lc=current_lc, operand=line[1])
 
-            opcode = copy.deepcopy(tables.OPCODES.get(line[1].lstrip(" +").upper()))    # to copy also the opcode dataobject
+            opcode = copy.deepcopy(tables.OPCODES.get(line[0].lstrip(" +").upper()))
 
             if opcode and is_format_4(line[0]):
                 opcode.format = 4
@@ -178,4 +178,4 @@ parsed_lines = parse_lines()
 preprocess_and_print_lines()
 
 print(intermediate_output_lines)
-    # save_intermediate_output()
+save_intermediate_output()
