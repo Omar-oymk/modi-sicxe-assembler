@@ -225,7 +225,7 @@ def resolve_operand(operand, symtab, pooltab, current_block, block_table):
             if value not in symtab:
                 print(f"Symbol not found: {value}")
                 return None
-            result["target"] = symtab[value]  # already absolute
+            result["target"] = get_absolute_address(symtab[value], current_block, block_table)  # already absolute
 
     elif operand.startswith("@"):
         result["n"] = 1
@@ -234,7 +234,7 @@ def resolve_operand(operand, symtab, pooltab, current_block, block_table):
         if symbol not in symtab:
             print(f"Symbol not found: {symbol}")
             return None
-        result["target"] = symtab[symbol]  # already absolute
+        result["target"] = get_absolute_address(symtab[symbol], current_block, block_table)  # already absolute
 
     elif operand.startswith("&"):
         if operand not in pooltab:
@@ -246,7 +246,7 @@ def resolve_operand(operand, symtab, pooltab, current_block, block_table):
         if operand not in symtab:
             print(f"Symbol not found: {operand}")
             return None
-        result["target"] = symtab[operand]  # already absolute
+        result["target"] = get_absolute_address(symtab[operand], current_block, block_table)  # already absolute
 
     return result
 
