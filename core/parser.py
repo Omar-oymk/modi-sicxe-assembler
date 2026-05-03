@@ -17,7 +17,8 @@ def parse_lines(file_path = Path(__file__).parents[1] / "input" / "in.txt"):
     return lines
 
 def valid_instruction(instruction: str):
-    return instruction.upper().lstrip('+') in tables.OPCODES or instruction.upper() in tables.DIRECTIVES 
+    clean = instruction.upper().lstrip('+')
+    return clean in tables.OPCODES or clean in tables.DIRECTIVES 
 
 def is_format_4(instruction: str):
     return instruction.startswith('+')
