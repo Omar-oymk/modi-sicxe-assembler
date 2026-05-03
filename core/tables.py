@@ -116,7 +116,7 @@ def HANDLE_DIRECTIVES(directive: str, lc, operand, prev_operand = None):
         lc += 1
     elif directive == "WORD":
         lc += 3
-    elif directive == "RESB":
+    elif directive == "RESB":       # needs more adjustments using the C or X
         lc += int(operand, 16)
     elif directive == "RESW":
         lc += int(operand, 16) * 3

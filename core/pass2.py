@@ -505,7 +505,7 @@ def pass_2():
             break
 
         # handle directives (not complete - just set location counter for now)
-        elif tables.is_a_directive(line.instruction):
+        elif is_a_directive(line.instruction):
             line.location_counter = get_absolute_address(lc)
             continue
 
