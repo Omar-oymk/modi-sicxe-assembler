@@ -66,7 +66,7 @@ def parse_intermediate():
             else:
                 continue
 
-            opcode = tables.OPCODES.get(instr.upper()) if instr else None
+            opcode = tables.OPCODES.get(instr.lstrip("+").upper()) if instr else None
 
             intermediate_list.append(
                 tables.Pass2_Line(
@@ -107,6 +107,10 @@ def parse_symtab():
     file_path = Path(__file__).parents[2] / "output" / "symbTable.txt"
 
     with open(file_path, "r") as f:
+
+        print("SYMTAB path:", file_path, "| exists:", file_path.exists())
+        print("Raw contents:", file_path.read_text())
+
         for line in f:
             line = line.strip()
             if not line:
@@ -117,8 +121,11 @@ def parse_symtab():
                 continue
 
             symbol = parts[0]
-            address = int(parts[1], 16)
-
+            try:
+                address = int(parts[1], 16)
+            except ValueError:
+                continue 
+            
             symtab[symbol] = address
 
     return symtab

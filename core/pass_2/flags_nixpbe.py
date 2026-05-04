@@ -19,6 +19,8 @@ def resolve_operand(operand, symtab, pooltab, current_block, block_table):
     if operand is None:
         return result
 
+    operand = operand.strip()
+
     if ",X" in operand.upper():
         result["x"] = 1
         operand = operand.replace(",X", "").replace(",x", "")
@@ -33,7 +35,7 @@ def resolve_operand(operand, symtab, pooltab, current_block, block_table):
             if value not in symtab:
                 print(f"Symbol not found: {value}")
                 return None
-            result["target"] = get_absolute_address(symtab[value], current_block, block_table)  # already absolute
+            result["target"] = symtab[value]
 
     elif operand.startswith("@"):
         result["n"] = 1
@@ -42,19 +44,19 @@ def resolve_operand(operand, symtab, pooltab, current_block, block_table):
         if symbol not in symtab:
             print(f"Symbol not found: {symbol}")
             return None
-        result["target"] = get_absolute_address(symtab[symbol], current_block, block_table)  # already absolute
+        result["target"] = symtab[symbol]
 
     elif operand.startswith("&"):
         if operand not in pooltab:
             print(f"Literal not found: {operand}")
             return None
-        result["target"] = pooltab[operand]  # already absolute (stored as address in parse_poolTable)
+        result["target"] = pooltab[operand]
 
     else:
         if operand not in symtab:
             print(f"Symbol not found: {operand}")
             return None
-        result["target"] = get_absolute_address(symtab[operand], current_block, block_table)  # already absolute
+        result["target"] = symtab[operand]
 
     return result
 

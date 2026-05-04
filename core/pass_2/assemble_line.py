@@ -18,7 +18,15 @@ def assemble_format3(line, symtab, pooltab, base_register, current_block, block_
     i = operand_info["i"]
     x = operand_info["x"]
 
-    pc = line.location_counter + 3  # PC points to next instruction
+    if n == 0 and i == 1 and line.operand.lstrip("#").strip().isdigit():
+        return generate_format3_object_code(
+            opcode=line.opcode.opcode,
+            n=n, i=i, x=x, b=0, p=0, e=0,
+            disp=target
+        )
+
+    block_base = block_table[current_block]["address"]
+    pc = (line.location_counter + block_base) + 3
 
     # try PC-relative first
     pc_result = calculate_pc_relative(target, pc)
@@ -61,7 +69,7 @@ def assemble_format4(line, symtab, pooltab, current_block, block_table):
 
     operand_info = resolve_operand(line.operand, symtab, pooltab, current_block, block_table)
 
-    if operand_info is None:
+    if operand_info is None or operand_info["target"] is None:  # match format3 guard
         return None
 
     target = operand_info["target"]
@@ -171,11 +179,14 @@ def handle_directive(line, symtab):
 
 def assemble_line(line, symtab, pooltab, base_register, current_block, block_table):
     
-    if line.opcode is None:
-        return handle_directive(line, symtab)
-    
     if line.instruction.startswith("+"):
         return assemble_format4(line, symtab, pooltab, current_block, block_table)
+    
+    if line.instruction.upper() in ["RSUB"]:
+        return f"{0x4F0000:06X}"
+
+    if line.opcode is None:
+        return handle_directive(line, symtab)
     
     elif line.opcode.format == 1:
         return assemble_format1(line)

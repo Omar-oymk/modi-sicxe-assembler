@@ -4,6 +4,9 @@ from pathlib import Path
 import parser_pass2 as parse
 from assemble_line import assemble_line
 
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from parser import line_list, location_counters, intermediate_output_lines
+
 def pass_2():
 
     intermediate_table = []
@@ -22,17 +25,17 @@ def pass_2():
     intermediate_table = parse.parse_intermediate()
 
     # DEBUG — remove after fixing
-    print("=== SYMTAB ===")
-    for k, v in symbol_table.items():
-        print(f"  {k!r}: {v:04X}")
+    # print("=== SYMTAB ===")
+    # for k, v in symbol_table.items():
+    #     print(f"  {k!r}: {v:04X}")
 
-    print("=== POOLTAB ===")
-    for k, v in pool_table.items():
-        print(f"  {k!r}: {v:04X}")
+    # print("=== POOLTAB ===")
+    # for k, v in pool_table.items():
+    #     print(f"  {k!r}: {v:04X}")
 
-    print("=== BLOCK TABLE ===")
-    for k, v in block_table.items():
-        print(f"  {k!r}: {v}")
+    # print("=== BLOCK TABLE ===")
+    # for k, v in block_table.items():
+    #     print(f"  {k!r}: {v}")
 
     for i, line in enumerate(intermediate_table):
         if line.instruction.upper() == "USE":
@@ -50,9 +53,18 @@ def pass_2():
             break
 
         # handle directives (not complete - just set location counter for now)
-        intermediate_table[i].object_code=assemble_line(line, symbol_table, pool_table, base_register, current_block, block_table)
+        # intermediate_table[i].object_code=assemble_line(line, symbol_table, pool_table, base_register, current_block, block_table)
+        # print(line.location_counter, line.instruction, line.object_code)
 
-        print(line.location_counter, line.instruction, line.object_code)
+    with open(Path(__file__).parents[2] / 'output' / "out_pass2.txt", "w") as f:
+        f.write(f"Location counter  Symbol  Instructions  Reference  Obj. code\n")
+        f.write(f"-------------------------------------------------------------\n")
+        for line in intermediate_table:
+            f.write(f"{line.location_counter:04X}  {line.label}  {line.instruction}  {line.operand}  {line.object_code}\n")
+
+
+        # line.object_code = assemble_line(line, symbol_table, pool_table, base_register, current_block, block_table)
+
 
 
 def test():
