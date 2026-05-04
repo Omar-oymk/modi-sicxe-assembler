@@ -163,16 +163,27 @@ def preprocess_and_print_lines():
 
 
     for i, line in enumerate(line_list):
-        intermediate_output_lines.append(f'{location_counters[i]}\t{line.label}\t{line.instruction}\t{line.operand}\t\t{line.object_code}\n')
+        intermediate_output_lines.append(f'{location_counters[i]} {line.label} {line.instruction} {line.operand} {line.object_code}\n')
 
     return intermediate_output_lines
 
 def save_intermediate_output(path_to_output: Path = Path(__file__).parents[1] / 'output' / 'intermediate.txt'):
     # opens intermediate file in write mode
     with open(path_to_output, 'w') as f:
-        f.write(f"LC\tLABEL\tOPCODE\tOPERAND\t  OBJECT_CODE\n")
-        f.write("--" * 30 + '\n')
-        f.writelines(intermediate_output_lines)
+        f.write(f"{'Location counter':<18}{'Symbol':<9}{'Instructions':<14}{'Reference':<10}\n")
+        f.write(f"{'-'*18}{'-'*9}{'-'*14}{'-'*10}\n")
+
+        
+        for item in intermediate_output_lines:
+            line = item.split()
+
+            symbol = line[1] if line[1] != 'None' else ""
+            instr = line[2] if line[2] != 'None' else ""
+            loc = line[0] if line[0] != 'None' and instr != 'USE' else ""
+            ref = line[3] if line[3] != 'None' else ""
+
+            f.write(f"{loc:<18}{symbol:<9}{instr:<14}{ref:<10}\n")
+
         
 
 parsed_lines = parse_lines()

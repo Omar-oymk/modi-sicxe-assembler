@@ -20,7 +20,7 @@ def handle_pool(lines, block_table):
 
     for line in lines:
         if line.operand:
-            if search_for_next and line.instruction == 'USE':
+            if search_for_next and line.instruction == 'USE' or line.instruction == 'END':
                 next_block = line.operand
                 next_block_line = line
                 search_for_next = False

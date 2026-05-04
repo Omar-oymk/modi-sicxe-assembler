@@ -1,0 +1,29 @@
+TEST    START   0
+
+        CLEAR   A
+        CLEAR   X
+
+        USE     DEFAULTB
+        LDA     #5
+        STA     TEMP
+
+        LDA     #10
+        ADD     #3
+
+        USE     CDATA
+TEMP    WORD    20
+VAL     WORD    100
+
+        USE     CBLKS
+BIG     RESB    50
+
+        USE     DEFAULT
+
+        LDX     #0
+        LDA     TEMP
+        STA     VAL
+
+        ADD     &X'0F'
+        COMP    &C'EOF'
+
+        END     TEST

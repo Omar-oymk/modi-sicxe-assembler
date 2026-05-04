@@ -1,24 +1,24 @@
-LC	LABEL	OPCODE	OPERAND	  OBJECT_CODE
-------------------------------------------------------------
-0000	COPY	START	0		None
-0000	FIRST	CLEAR	X		None
-0002	None	CLEAR	A		None
-0004	None	USE	DEFAULTB		None
-0000	None	LDA	#0		None
-0003	None	LDB	#BASEVAL		None
-0006	None	BASE	BASEVAL		None
-0006	None	LDA	ALPHA		None
-0009	None	ADD	&C'EOF'		None
-000C	None	STA	BETA		None
-000F	None	LDA	@GAMMA		None
-0012	None	+LDX	ALPHA		None
-0016	None	ADD	&X'0F'		None
-0019	None	STCH	GAMMA,X		None
-001C	None	RSUB	None		None
-001F	None	USE	CDATA		None
-0000	ALPHA	WORD	5		None
-0003	BETA	RESW	1		None
-0006	BASEVAL	WORD	4096		None
-0009	None	USE	CBLKS		None
-0000	GAMMA	RESB	5376		None
-1500	None	END	FIRST		None
+Location counter  Symbol   Instructions  Reference 
+---------------------------------------------------
+0000              COPY     START         0         
+0000              FIRST    CLEAR         X         
+0002                       CLEAR         A         
+                           USE           DEFAULTB  
+0000                       LDA           #0        
+0003                       LDB           #BASEVAL  
+0006                       BASE          BASEVAL   
+0006                       LDA           ALPHA     
+0009                       ADD           &C'EOF'   
+000C                       STA           BETA      
+000F                       LDA           @GAMMA    
+0012                       +LDX          ALPHA     
+0016                       ADD           &X'0F'    
+0019                       STCH          GAMMA,X   
+001C                       RSUB                    
+                           USE           CDATA     
+0000              ALPHA    WORD          5         
+0003              BETA     RESW          1         
+0006              BASEVAL  WORD          4096      
+                           USE           CBLKS     
+0000              GAMMA    RESB          5376      
+1500                       END           FIRST     

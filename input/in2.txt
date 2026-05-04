@@ -1,0 +1,40 @@
+TEST    START   0
+        CLEAR   A
+        CLEAR   X
+
+        USE     DEFAULTB
+        LDA     #5
+        STA     TMP1
+
+        LDA     @PTR
+        +JSUB   SUBROUTINE
+
+        ADD     &X'0F'
+        ADD     &X'0F'        ; repeated pool value (should NOT duplicate in poolTable)
+        COMP    &C'EOF'
+
+        USE     CDATA
+TMP1    WORD    10
+TMP2    RESW    2
+VAL1    WORD    100
+
+        USE     CBLKS
+BIG1    RESB    50
+BIG2    RESB    200
+
+        USE     DEFAULT
+PTR     WORD    TMP1
+        LDX     PTR
+
+        USE     DEFAULTB
+        LDA     VAL1
+        STA     RESULT
+
+SUBROUTINE
+        LDA     #1
+        ADD     TMP1
+        RSUB
+
+RESULT  RESW    1
+
+        END     TEST
