@@ -4,4 +4,5 @@
 # the parser will then take each take these and create a list of lines that has multiple data
 # that will then be filled on each iteration 
 
-fields = []
+def get_tokens():
+    pass
