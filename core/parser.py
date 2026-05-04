@@ -60,7 +60,7 @@ def preprocess_and_print_lines():
                 raise ValueError(f"Invalid instruction: {line[1]}")
 
             if is_a_directive(line[1]) and line[1].upper() == 'START':
-                current_lc = tables.HANDLE_DIRECTIVES(line[1].upper(), lc=current_lc, operand=line[2])
+                current_lc = tables.HANDLE_DIRECTIVES(line[1].upper(), location_counter = current_lc, operand=line[2])
                 location_counters.append(format(current_lc, '04X'))
 
 
@@ -69,7 +69,7 @@ def preprocess_and_print_lines():
             if opcode and is_format_4(line[1]):
                 opcode.format = 4
 
-            line_list.append(    
+            line_list.append(
                             tables.Line(      
                                             label=line[0],
                                             instruction=line[1],
@@ -82,22 +82,23 @@ def preprocess_and_print_lines():
                             )
             
             if is_a_directive(line[1]) and line[1].upper() != 'START':
-                current_lc = tables.HANDLE_DIRECTIVES(line[1], lc = current_lc, operand = line[2])
+                current_lc = tables.HANDLE_DIRECTIVES(line[1], location_counter= current_lc, operand = line[2])
             else:
                 current_lc += opcode.format if opcode else 0x0000
 
         elif len(line) == 2:
 
             if not valid_instruction(line[0]):
-                # break
-                # raise an error
-                # and generate an error.txt file with the error message
-                with open(Path(__file__).parents[1]/ 'output' / "error.txt", "w") as f:
-                    f.write(f"ERROR OCCURED IN LINE: {i+1}: {line}\nPROGRAM TERMINATED AT PASS 1.")
-                raise ValueError(f"Invalid instruction: {line[0]}")
+                if not valid_instruction(line[1]):
+                    # break
+                    # raise an error
+                    # and generate an error.txt file with the error message
+                    with open(Path(__file__).parents[1]/ 'output' / "error.txt", "w") as f:
+                        f.write(f"ERROR OCCURED IN LINE: {i+1}: {line}\nPROGRAM TERMINATED AT PASS 1.")
+                    raise ValueError(f"Invalid instruction: {line[0]}")
 
             if is_a_directive(line[0]) and line[0].upper() == 'START':
-                current_lc = tables.HANDLE_DIRECTIVES(line[0].upper(), lc=current_lc, operand=line[1])
+                current_lc = tables.HANDLE_DIRECTIVES(line[0].upper(), location_counter=current_lc, operand=line[1])
 
             opcode = copy.deepcopy(tables.OPCODES.get(line[0].lstrip(" +").upper()))
 
@@ -118,7 +119,7 @@ def preprocess_and_print_lines():
             
 
             if is_a_directive(line[0]) and line[0].upper() != 'START':
-                current_lc = tables.HANDLE_DIRECTIVES(line[0], lc = current_lc, operand = line[1])
+                current_lc = tables.HANDLE_DIRECTIVES(line[0], location_counter= current_lc, operand = line[1])
             else:
                 current_lc += opcode.format if opcode else 0
 
@@ -152,7 +153,7 @@ def preprocess_and_print_lines():
             
 
             if is_a_directive(line[0]):
-                current_lc = tables.HANDLE_DIRECTIVES(line[0], lc = current_lc, operand = None)
+                current_lc = tables.HANDLE_DIRECTIVES(line[0], location_counter= current_lc, operand = None)
             else:
                 current_lc += opcode.format if opcode else 0
             

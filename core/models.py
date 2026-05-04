@@ -26,6 +26,8 @@ def is_char_operand(operand):
 def is_hex_operand(operand):
     return operand.startswith("X'")
 
+
+
 def HANDLE_DIRECTIVES(directive: str, location_counter, operand, prev_operand = None):
     if directive == "START":
         location_counter += 0 

@@ -107,19 +107,29 @@ REGISTER_MAP = {
     "SW": 9
 }
 
-def HANDLE_DIRECTIVES(directive: str, lc, operand, prev_operand = None):
+
+def is_char_operand(operand):
+    return operand.startswith("C'")
+
+def is_hex_operand(operand):
+    return operand.startswith("X'")
+
+def HANDLE_DIRECTIVES(directive: str, location_counter, operand, prev_operand = None):
     if directive == "START":
-        lc += 0 
+        location_counter += 0 
     elif directive == "END":
         pass
     elif directive == "BYTE":
-        lc += 1
+        if is_char_operand(operand):
+            location_counter += len(operand) - 1
+        elif is_hex_operand(operand):
+            location_counter += (len(operand) - 1) / 2
     elif directive == "WORD":
-        lc += 3
-    elif directive == "RESB":       # needs more adjustments using the C or X
-        lc += int(operand, 16)
+        location_counter += 3
+    elif directive == "RESB":
+        location_counter += int(operand)
     elif directive == "RESW":
-        lc += int(operand, 16) * 3
+        location_counter += int(operand) * 3
     elif directive == "EQU":
         pass
     elif directive == "USE":   
@@ -143,7 +153,7 @@ def HANDLE_DIRECTIVES(directive: str, lc, operand, prev_operand = None):
         if prev_operand == operand:
             pass
         else:
-            lc = 0
+            location_counter = 0
     elif directive == "BASE":
         pass
-    return lc
+    return location_counter
