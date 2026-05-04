@@ -53,14 +53,14 @@ def pass_2():
             break
 
         # handle directives (not complete - just set location counter for now)
-        # intermediate_table[i].object_code=assemble_line(line, symbol_table, pool_table, base_register, current_block, block_table)
+        intermediate_table[i].object_code=assemble_line(line, symbol_table, pool_table, base_register, current_block, block_table)
         # print(line.location_counter, line.instruction, line.object_code)
 
     with open(Path(__file__).parents[2] / 'output' / "out_pass2.txt", "w") as f:
         f.write(f"Location counter  Symbol  Instructions  Reference  Obj. code\n")
         f.write(f"-------------------------------------------------------------\n")
         for line in intermediate_table:
-            f.write(f"{line.location_counter:04X}  {line.label}  {line.instruction}  {line.operand}  {line.object_code}\n")
+            f.write(f"{line.location_counter:04X}              {line.label if line.label else 'None':<10}  {line.instruction if line.instruction else 'None':<10}  {line.operand if line.operand else 'None':<10}  {line.object_code if line.object_code else 'None':<10}\n")
 
 
         # line.object_code = assemble_line(line, symbol_table, pool_table, base_register, current_block, block_table)
