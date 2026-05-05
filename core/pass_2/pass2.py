@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from htme.header import total_length, initial_counter, final_counter, header_record
 
 import parser_pass2 as parse
 from assemble_line import assemble_line
@@ -55,6 +56,12 @@ def pass_2():
         # handle directives (not complete - just set location counter for now)
         intermediate_table[i].object_code=assemble_line(line, symbol_table, pool_table, base_register, current_block, block_table)
         # print(line.location_counter, line.instruction, line.object_code)
+
+    # print(initial_counter(intermediate_table))
+    # print(final_counter(intermediate_table))
+    # print(total_length(intermediate_table))
+
+    print(header_record(intermediate_table, block_table))
 
     with open(Path(__file__).parents[2] / 'output' / "out_pass2.txt", "w") as f:
         f.write(f"Location counter  Symbol  Instructions  Reference  Obj. code\n")

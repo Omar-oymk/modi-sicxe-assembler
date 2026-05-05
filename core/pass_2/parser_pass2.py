@@ -108,8 +108,8 @@ def parse_symtab():
 
     with open(file_path, "r") as f:
 
-        print("SYMTAB path:", file_path, "| exists:", file_path.exists())
-        print("Raw contents:", file_path.read_text())
+        # print("SYMTAB path:", file_path, "| exists:", file_path.exists())
+        # print("Raw contents:", file_path.read_text())
 
         for line in f:
             line = line.strip()
