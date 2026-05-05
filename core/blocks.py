@@ -3,7 +3,7 @@ def handle_blocks(lines):
     i = 0 
     
     for line in lines:
-        if line.instruction == 'USE' or i == 0:
+        if line.instruction == 'USE' or i == 0 or line.operand.startswith('&'):
 
             block_list.append({
                 "BLOCK NAME" : "DEFAULT" if i == 0 else line.operand,

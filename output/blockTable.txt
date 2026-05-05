@@ -1,6 +1,9 @@
 BLOCK NAME  BLOCK NUMBER  ADDRESS   SIZE    
-DEFAULT     0             0000      0033    
-CDATA       1             0033      0011    
-CBLKS       2             0011      0039    
+DEFAULT     0             0000      0004    
+POOL        1             0045      0004    
+DEFAULTB    2             0049      000C    
+CDATA       3             0055      0006    
+CBLKS       4             005B      0032    
+DEFAULT     5             008D      0013    
 
-Total program length: 007D
+Total program length: 005F
