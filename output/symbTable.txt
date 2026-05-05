@@ -1,6 +1,10 @@
 SYMBOL NAME  ADDRESS 
-FIRST        0000    
-ALPHA        0027    
-BETA         002A    
-BASEVAL      002D    
-GAMMA        0030    
+ALPHA        0030    
+BETA         0033    
+PTR          0036    
+BASE1        0039    
+CH1          003C    
+HX1          003F    
+GAMMA        000F    
+ARR          002F    
+ROUTN        003E    

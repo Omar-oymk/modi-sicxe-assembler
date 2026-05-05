@@ -120,7 +120,9 @@ def is_char_operand(operand):
 def is_hex_operand(operand):
     return operand.startswith("X'")
 
-def HANDLE_DIRECTIVES(directive: str, location_counter, operand, prev_operand = None):
+
+current_block = "DEFAULT"
+def HANDLE_DIRECTIVES(directive: str, location_counter, operand):
     if directive == "START":
         location_counter += 0 
     elif directive == "END":
@@ -129,7 +131,7 @@ def HANDLE_DIRECTIVES(directive: str, location_counter, operand, prev_operand = 
         if is_char_operand(operand):
             location_counter += len(operand) - 1
         elif is_hex_operand(operand):
-            location_counter += (len(operand) - 1) / 2
+            location_counter += (len(operand) - 1) // 2
     elif directive == "WORD":
         location_counter += 3
     elif directive == "RESB":
@@ -139,6 +141,8 @@ def HANDLE_DIRECTIVES(directive: str, location_counter, operand, prev_operand = 
     elif directive == "EQU":
         pass
     elif directive == "USE":   
+        global current_block
+        global BLOCKS
         # needs adjustments and more research on how to handle blocks 
         """
         NEED TO CHECK FOR EXAMPLES CASES LIKE 
@@ -156,10 +160,13 @@ def HANDLE_DIRECTIVES(directive: str, location_counter, operand, prev_operand = 
         THE QUESTION IS SHOULD IT BE 
         0008 OR 0000 (aka: continue counting from last location counter on default block or start again)
         """
-        if prev_operand == operand:
-            pass
-        else:
-            location_counter = 0
+        BLOCKS[current_block] = location_counter
+
+        current_block = operand
+
+        location_counter = BLOCKS.get(current_block, 0)
+
+
     elif directive == "BASE":
         pass
     return location_counter

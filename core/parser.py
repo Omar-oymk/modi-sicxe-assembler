@@ -7,10 +7,12 @@ intermediate_output_lines = []
 location_counters = []
 line_list = []
 
-prev_lc : int = 0x0000
+absolute_loc_counters = []
+
+absolute_counter = 0x0000
 current_lc : int = 0x0000
 
-def parse_lines(file_path = Path(__file__).parents[1] / "input" / "in.txt"):
+def parse_lines(file_path = Path(__file__).parents[1] / "input" / "fullin.txt"):
     with open(file_path, "r") as f:
         lines = f.readlines()
         
@@ -67,7 +69,9 @@ def preprocess_and_print_lines():
 
             if is_a_directive(line[1]) and line[1].upper() == 'START':
                 current_lc = tables.HANDLE_DIRECTIVES(line[1].upper(), location_counter = current_lc, operand=line[2])
+                absolute_counter = tables.HANDLE_DIRECTIVES(line[1].upper(), absolute_counter, operand = line[2])
                 location_counters.append(format(current_lc, '04X'))
+                absolute_loc_counters.append(format(absolute_counter, '04X'))
 
 
             opcode = copy.deepcopy(tables.OPCODES.get(line[1].lstrip(" +").upper()))    # to copy also the opcode dataobject
@@ -100,6 +104,7 @@ def preprocess_and_print_lines():
                 current_lc = tables.HANDLE_DIRECTIVES(line[1], location_counter= current_lc, operand = line[2])
             else:
                 current_lc += opcode.format if opcode else 0x0000
+                absolute_counter += opcode.format if opcode else 0x0000
 
         elif len(line) == 2:
 
@@ -114,6 +119,7 @@ def preprocess_and_print_lines():
 
             if is_a_directive(line[0]) and line[0].upper() == 'START':
                 current_lc = tables.HANDLE_DIRECTIVES(line[0].upper(), location_counter=current_lc, operand=line[1])
+                absolute_counter = tables.HANDLE_DIRECTIVES(line[0].upper(), location_counter=absolute_counter, operand = line[1])
 
             opcode = copy.deepcopy(tables.OPCODES.get(line[0].lstrip(" +").upper()))
 
@@ -145,6 +151,7 @@ def preprocess_and_print_lines():
                 current_lc = tables.HANDLE_DIRECTIVES(line[0], location_counter= current_lc, operand = line[1])
             else:
                 current_lc += opcode.format if opcode else 0
+                absolute_counter += opcode.format if opcode else 0
 
         elif len(line) == 1:
 
@@ -179,9 +186,11 @@ def preprocess_and_print_lines():
                 current_lc = tables.HANDLE_DIRECTIVES(line[0], location_counter= current_lc, operand = None)
             else:
                 current_lc += opcode.format if opcode else 0
+                absolute_counter += opcode.format if opcode else 0
             
         
         location_counters.append(f'{current_lc:04X}')
+        absolute_loc_counters.append(f'{absolute_counter:04X}')
         # print(location_counters)
 
 

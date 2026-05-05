@@ -18,6 +18,8 @@ def handle_pool(lines, block_table):
 
     starting_lc = ""
 
+    current_block_line = lines[0]
+
     for line in lines:
         if line.operand:
             if search_for_next and (line.instruction == 'USE' or line.instruction == 'END'):

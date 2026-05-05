@@ -1,0 +1,38 @@
+TESTPG  START   0
+FIRST   FIX
+        FLOAT
+        HIO
+        NORM
+        CLEAR   X
+        TIXR    T
+        COMPR   A,S
+        SHIFTL  T,4
+        SVC     1
+        LDA     #5
+        LDB     #BASE1
+        BASE    BASE1
+        LDA     ALPHA
+        LDA     @PTR
+        STA     BETA
+        STCH    GAMMA,X
+        ADD     &C'EOF'
+        SUB     &X'0A'
+        +JSUB   ROUTN
+        +LDA    #4097
+        JSUB    ROUTN
+        RSUB
+        USE     CDATA
+ALPHA   WORD    1
+BETA    RESW    1
+PTR     WORD    0
+BASE1   WORD    4096
+CH1     BYTE    C'Z'
+HX1     BYTE    X'FA'
+        USE     CBLKS
+GAMMA   RESB    32
+ARR     RESW    5
+ROUTN   LDX     #0
+        ADDR    A,X
+        RMO     X,A
+        RSUB
+        END     FIRST
