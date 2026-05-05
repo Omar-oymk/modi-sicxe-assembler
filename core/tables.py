@@ -107,6 +107,12 @@ REGISTER_MAP = {
     "SW": 9
 }
 
+BLOCKS = {
+    'DEFAULT': 0,
+    'DEFAULTB': 0,
+    'CDATA': 0,
+    'CBLKS': 0
+}
 
 def is_char_operand(operand):
     return operand.startswith("C'")
