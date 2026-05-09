@@ -1,10 +1,6 @@
 import re
-import sys
-from pathlib import Path
-from flags_nixpbe import calculate_base_relative, calculate_pc_relative, generate_format3_object_code, generate_format4_object_code, resolve_operand
-
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-import tables
+from core.pass_2.flags_nixpbe import calculate_base_relative, calculate_pc_relative, generate_format3_object_code, generate_format4_object_code, resolve_operand
+from core import tables
 
 def assemble_format3(line, symtab, pooltab, base_register, current_block, block_table):
 

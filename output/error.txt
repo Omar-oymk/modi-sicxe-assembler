@@ -1,2 +1,3 @@
-ERROR OCCURED IN LINE: 33: ['SUBROUTINE']
-PROGRAM TERMINATED AT PASS 1.
+
+        BYTE FORMAT ERROR at line 0
+        Invalid operand: C'HELLO,

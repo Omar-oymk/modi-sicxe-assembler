@@ -1,14 +1,10 @@
-import tables
+from core import tables
 from pathlib import Path
 import re
 import copy
 
-intermediate_output_lines = []
-location_counters = []
-line_list = []
-current_lc : int = 0x0000
 
-def parse_lines(file_path = Path(__file__).parents[1] / "input" / "fullin.txt"):
+def parse_lines(file_path):
     with open(file_path, "r") as f:
         lines = f.readlines()
         
@@ -31,9 +27,12 @@ def is_valid_block(operand: str):
     return operand.upper() in tables.BLOCKS
 
 
-def preprocess_and_print_lines():
-    global current_lc 
-    
+def preprocess_and_print_lines(parsed_lines, output_dir):
+    current_lc = 0x0000
+    intermediate_output_lines = []
+    location_counters = []
+    line_list = []
+
     for i, line in enumerate(parsed_lines):
         line = line.strip()
 
@@ -49,17 +48,15 @@ def preprocess_and_print_lines():
         line = re.split(r'\s+', line)   # this is not the best as it gives errors for the edge case of BYTE C'HELLO, WORLD' but we will handle that later
         if line == "":
             continue
-        # print(line)       # USED FOR DEBUGGING
 
 
         # construct the objects and append them to the intermediate list
         if len(line) == 3:
             
             if not valid_instruction(line[1]):
-                # break
                 # raise an error
                 # and generate an error.txt file with the error message
-                with open(Path(__file__).parents[1]/ 'output' / "error.txt", "w") as f:
+                with open(output_dir / "error.txt", "w") as f:
                     f.write(f"ERROR OCCURED IN LINE: {i+1}: {line}\nPROGRAM TERMINATED AT PASS 1.")
                 raise ValueError(f"Invalid instruction: {line[1]}")
 
@@ -88,7 +85,7 @@ def preprocess_and_print_lines():
             if is_a_directive(line[1]) and line[1].upper() != 'START':
                 if line[1] == 'USE':
                     if not is_valid_block(line[2].upper()):
-                        with open(Path(__file__).parents[1] / 'output' / 'error.txt', 'w') as f:
+                        with open(output_dir / 'error.txt', 'w') as f:
                             f.write('Error : Unidentified Block Name\n')
                             f.write(f'PC    : {current_lc:06X}\n')
                             f.write(f'Line  : line {i+1}\n')
@@ -103,10 +100,9 @@ def preprocess_and_print_lines():
 
             if not valid_instruction(line[0]):
                 if not valid_instruction(line[1]):
-                    # break
                     # raise an error
                     # and generate an error.txt file with the error message
-                    with open(Path(__file__).parents[1]/ 'output' / "error.txt", "w") as f:
+                    with open(output_dir / "error.txt", "w") as f:
                         f.write(f"ERROR OCCURED IN LINE: {i+1}: {line}\nPROGRAM TERMINATED AT PASS 1.")
                     raise ValueError(f"Invalid instruction: {line[0]}")
 
@@ -134,7 +130,7 @@ def preprocess_and_print_lines():
             if is_a_directive(line[0]) and line[0].upper() != 'START':
                 if line[0] == 'USE':
                     if not is_valid_block(line[1].upper()):
-                        with open(Path(__file__).parents[1] / 'output' / 'error.txt', 'w') as f:
+                        with open(output_dir / 'error.txt', 'w') as f:
                             f.write('Error : Unidentified Block Name\n')
                             f.write(f'PC    : {current_lc:06X}\n')
                             f.write(f'Line  : line {i+1}\n')
@@ -147,10 +143,9 @@ def preprocess_and_print_lines():
         elif len(line) == 1:
 
             if not valid_instruction(line[0]):
-                # break
                 # raise an error
                 # and generate an error.txt file with the error message
-                with open(Path(__file__).parents[1]/ 'output' / "error.txt", "w") as f:
+                with open(output_dir / "error.txt", "w") as f:
                     f.write(f"ERROR OCCURED IN LINE: {i+1}: {line}\nPROGRAM TERMINATED AT PASS 1.")
                 raise ValueError(f"Invalid instruction: {line[0]}")
 
@@ -180,20 +175,18 @@ def preprocess_and_print_lines():
             
         
         location_counters.append(f'{current_lc:04X}')
-        # print(location_counters)
 
 
     for i, line in enumerate(line_list):
         intermediate_output_lines.append(f'{location_counters[i]} {line.label} {line.instruction} {line.operand} {line.object_code}\n')
 
-    return intermediate_output_lines
+    return intermediate_output_lines, location_counters, line_list
 
-def save_intermediate_output(path_to_output: Path = Path(__file__).parents[1] / 'output' / 'intermediate.txt'):
+def save_intermediate_output(intermediate_output_lines, path_to_output):
     # opens intermediate file in write mode
     with open(path_to_output, 'w') as f:
         f.write(f"{'Location counter':<18}{'Symbol':<9}{'Instructions':<14}{'Reference':<10}\n")
-        f.write(f"{'-'*18}{'-'*9}{'-'*14}{'-'*10}\n")
-
+        f.write(f"{'-'*16}  {'-'*7}  {'-'*12}  {'-'*10}\n")
         
         for item in intermediate_output_lines:
             line = item.split()
@@ -205,10 +198,3 @@ def save_intermediate_output(path_to_output: Path = Path(__file__).parents[1] / 
 
             f.write(f"{loc:<18}{symbol:<9}{instr:<14}{ref:<10}\n")
 
-        
-
-parsed_lines = parse_lines()
-preprocess_and_print_lines()
-
-print(intermediate_output_lines)
-save_intermediate_output()

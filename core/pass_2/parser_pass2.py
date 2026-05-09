@@ -1,9 +1,7 @@
 import re
-import sys
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-import tables
+from core import tables
 
 def is_hex(value):
     try:
@@ -12,10 +10,10 @@ def is_hex(value):
     except ValueError:
         return False
 
-def parse_intermediate():
+def parse_intermediate(output_dir):
     intermediate_list = []
 
-    file_path = Path(__file__).parents[2] / "output" / "intermediate.txt"
+    file_path = output_dir / "intermediate.txt"
 
     with open(file_path, "r") as f:
         lines = f.readlines()
@@ -101,15 +99,12 @@ def parse_intermediate():
     return intermediate_list
 
 
-def parse_symtab():
+def parse_symtab(output_dir):
     symtab = {}
 
-    file_path = Path(__file__).parents[2] / "output" / "symbTable.txt"
+    file_path = output_dir / "symbTable.txt"
 
     with open(file_path, "r") as f:
-
-        # print("SYMTAB path:", file_path, "| exists:", file_path.exists())
-        # print("Raw contents:", file_path.read_text())
 
         for line in f:
             line = line.strip()
@@ -130,10 +125,10 @@ def parse_symtab():
 
     return symtab
 
-def parse_blockTable():
+def parse_blockTable(output_dir):
     block_table = {}
 
-    file_path = Path(__file__).parents[2] / "output" / "blockTable.txt"
+    file_path = output_dir / "blockTable.txt"
 
     with open(file_path, "r") as f:
         for line in f:
@@ -164,10 +159,10 @@ def parse_blockTable():
     return block_table
 
 # hattzbattt
-def parse_poolTable():
+def parse_poolTable(output_dir):
     pool_table = {}
 
-    file_path = Path(__file__).parents[2] / "output" / "poolTable.txt"
+    file_path = output_dir / "PoolTable.txt"
 
     with open(file_path, "r") as f:
         lines = f.readlines()
@@ -205,10 +200,10 @@ def parse_poolTable():
 
 
 
-def parse_poolTable_for_text_rec():
+def parse_poolTable_for_text_rec(output_dir):
     pool_table = {}
 
-    file_path = Path(__file__).parents[2] / "output" / "poolTable.txt"
+    file_path = output_dir / "PoolTable.txt"
 
     with open(file_path, "r") as f:
         lines = f.readlines()

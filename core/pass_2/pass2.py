@@ -1,17 +1,15 @@
 import sys
 from pathlib import Path
-from htme.end import end_record
-from htme.modification import modification_record
-from htme.header import total_length, initial_counter, final_counter, header_record
-from htme.text import text_record
+from core.pass_2.htme.end import end_record
+from core.pass_2.htme.modification import modification_record
+from core.pass_2.htme.header import total_length, initial_counter, final_counter, header_record
+from core.pass_2.htme.text import text_record
 
-import parser_pass2 as parse
-from assemble_line import assemble_line
+from core.pass_2 import parser_pass2 as parse
+from core.pass_2.assemble_line import assemble_line
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-from parser import line_list, location_counters, intermediate_output_lines
 
-def pass_2():
+def pass_2(output_dir):
 
     intermediate_table = []
     symbol_table = {}
@@ -23,10 +21,10 @@ def pass_2():
     base_register = None
     lc = 0
 
-    symbol_table = parse.parse_symtab()
-    block_table = parse.parse_blockTable()
-    pool_table = parse.parse_poolTable()
-    intermediate_table = parse.parse_intermediate()
+    symbol_table = parse.parse_symtab(output_dir)
+    block_table = parse.parse_blockTable(output_dir)
+    pool_table = parse.parse_poolTable(output_dir)
+    intermediate_table = parse.parse_intermediate(output_dir)
 
 
     try:
@@ -50,41 +48,28 @@ def pass_2():
 
     except ValueError as e:
 
-        with open("error.txt", "w") as f:
+        with open(output_dir / "error.txt", "w") as f:
             f.write(str(e))
 
         sys.exit(1)
 
 
-    print(header_record(intermediate_table, block_table))
-    print(text_record(intermediate_table, block_table, parse.parse_poolTable_for_text_rec()))
-    print(modification_record(intermediate_table, block_table))
-    print(end_record(intermediate_table, block_table))
-
-    with open(Path(__file__).parents[2] / 'output' / "out_pass2.txt", "w") as f:
-        f.write(f"Location counter  Symbol  Instructions  Reference  Obj. code\n")
-        f.write(f"-------------------------------------------------------------\n")
+    with open(output_dir / "out_pass2.txt", "w") as f:
+        f.write(f"{'Location counter':<18}{'Symbol':<9}{'Instructions':<14}{'Reference':<12}{'Obj. code':<14}\n")
+        f.write(f"{'-'*16}  {'-'*7}  {'-'*12}  {'-'*10}  {'-'*14}\n")
         for line in intermediate_table:
+            lc_str = f'{line.location_counter:04X}' if line.location_counter is not None else ''
+            label_str = line.label if line.label else ''
+            instr_str = line.instruction if line.instruction else ''
+            operand_str = line.operand if line.operand else ''
+            obj_str = line.object_code if line.object_code else 'No object code'
             f.write(
-                f"{(f'{line.location_counter:04X}' if line.location_counter is not None else ''):<4}  "
-                f"{line.label if line.label else '':<10}     "
-                f"{line.instruction if line.instruction else '':<10}     "
-                f"{line.operand if line.operand else '':<10}      "
-                f"{line.object_code if line.object_code else 'No object code':<10}\n"
+                f"{lc_str:<18}{label_str:<9}{instr_str:<14}{operand_str:<12}{obj_str}\n"
             )
 
-    with open(Path(__file__).parents[2] / 'output' / "HTME.txt", "w") as f:
+    with open(output_dir / "HTME.txt", "w") as f:
         f.write(header_record(intermediate_table, block_table) + "\n")
-        f.write(text_record(intermediate_table, block_table, parse.parse_poolTable_for_text_rec()) + "\n")
-        f.write(modification_record(intermediate_table, block_table) + "\n")
+        f.write(text_record(intermediate_table, block_table, parse.parse_poolTable_for_text_rec(output_dir)) + "\n")
+        if (modification_record(intermediate_table, block_table)):
+            f.write(modification_record(intermediate_table, block_table) + "\n")
         f.write(end_record(intermediate_table, block_table))
-
-        # line.object_code = assemble_line(line, symbol_table, pool_table, base_register, current_block, block_table)
-
-
-
-def test():
-    pass_2()
-
-if __name__ == '__main__':
-    test()

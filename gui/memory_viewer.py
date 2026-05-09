@@ -511,13 +511,16 @@ class MemoryViewerApp:
         self._load()
 
 
-# ── ENTRY POINT ───────────────────────────────────────────────────────────────
-if __name__ == "__main__":
+def main():
     root = tk.Tk()
-    # Start maximised so the grid fills the screen
+    # Start with a default size, but allow it to be overridden by the window manager
     try:
-        root.state("zoomed")
+        root.state()
     except Exception:
         root.geometry("1200x700")
     MemoryViewerApp(root)
     root.mainloop()
+
+# ── ENTRY POINT ───────────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    main()

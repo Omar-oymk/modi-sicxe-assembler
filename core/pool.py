@@ -1,5 +1,4 @@
-import parser
-import tables 
+from core import tables
 
 
 def handle_pool(lines, block_table):

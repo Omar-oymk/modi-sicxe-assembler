@@ -23,7 +23,6 @@ def handle_blocks(lines):
 
 
 def adjust_final_blocks(block_list, pool_table, index_of_pool):
-    print(index_of_pool)
     total_program_length = 0
     adjusted_block_list = []
     size = 0
@@ -45,7 +44,6 @@ def adjust_final_blocks(block_list, pool_table, index_of_pool):
         block_list[i]['SIZE'] = f'{block_size:04X}'
         block_size = 0
     
-    print(f'Index of pool after deduplication: {index_of_pool}')
 
     for item in pool_table:
         size += item['LENGTH']
