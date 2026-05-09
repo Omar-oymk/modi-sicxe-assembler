@@ -1,0 +1,4 @@
+PROG     START   0
+         LDA     &C'LIT'
+         RESB    5000
+         END     PROG

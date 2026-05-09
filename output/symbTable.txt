@@ -1,10 +1,9 @@
 SYMBOL NAME  ADDRESS 
-ALPHA        0037    
-BETA         003A    
-PTR          003D    
-BASE1        0040    
-CH1          0043    
-HX1          0046    
-GAMMA        0048    
-ARR          0068    
-ROUTN        0077    
+TMP1         0032    
+TMP2         0035    
+VAL1         003B    
+BIG1         003E    
+BIG2         0070    
+PTR          0004    
+SUBROUTINE   0026    
+RESULT       002F    

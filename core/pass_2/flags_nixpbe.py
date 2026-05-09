@@ -4,7 +4,7 @@
 def get_absolute_address(lc, current_block, block_table):
     return block_table[current_block]["address"] + lc
 
-def resolve_operand(operand, symtab, pooltab, current_block, block_table):
+def resolve_operand(line, symtab, pooltab, current_block, block_table):
 
     result = {
         "target": None,
@@ -13,10 +13,12 @@ def resolve_operand(operand, symtab, pooltab, current_block, block_table):
         "x": 0
     }
 
-    if operand is None:
+    if line.operand is None:
         return result
 
-    operand = operand.strip()
+    operand = line.operand.strip()
+
+    pc_str = f"{line.location_counter:06X}" if line.location_counter is not None else "000000"
 
     if ",X" in operand.upper():
         result["x"] = 1
@@ -30,8 +32,11 @@ def resolve_operand(operand, symtab, pooltab, current_block, block_table):
             result["target"] = int(value)
         else:
             if value not in symtab:
-                print(f"Symbol not found: {value}")
-                return None
+                raise ValueError(
+                    f"Error : Unidentified Symbol\n"
+                    f"PC    : {pc_str}\n"
+                    f"Detail: symbol '{value}' is referenced but not defined."
+                )
             result["target"] = symtab[value]
 
     elif operand.startswith("@"):
@@ -39,20 +44,29 @@ def resolve_operand(operand, symtab, pooltab, current_block, block_table):
         result["i"] = 0
         symbol = operand[1:]
         if symbol not in symtab:
-            print(f"Symbol not found: {symbol}")
-            return None
+            raise ValueError(
+                f"Error : Unidentified Symbol\n"
+                f"PC    : {pc_str}\n"
+                f"Detail: symbol '{symbol}' is referenced but not defined."
+            )
         result["target"] = symtab[symbol]
 
     elif operand.startswith("&"):
         if operand not in pooltab:
-            print(f"Literal not found: {operand}")
-            return None
+            raise ValueError(
+                f"Error : Unidentified Symbol\n"
+                f"PC    : {pc_str}\n"
+                f"Detail: literal '{operand}' is referenced but not defined."
+            )
         result["target"] = pooltab[operand]
 
     else:
         if operand not in symtab:
-            print(f"Symbol not found: {operand}")
-            return None
+            raise ValueError(
+                f"Error : Unidentified Symbol\n"
+                f"PC    : {pc_str}\n"
+                f"Detail: symbol '{operand}' is referenced but not defined."
+            )
         result["target"] = symtab[operand]
 
     return result

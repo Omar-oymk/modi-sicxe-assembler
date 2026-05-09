@@ -37,7 +37,12 @@ def pass_2(output_dir):
                 base_symbol = line.operand
                 base_register = symbol_table.get(base_symbol)
                 if base_register is None:
-                    print(f"Warning: BASE symbol '{base_symbol}' not found in symtab")
+                    pc_str = f"{line.location_counter:06X}" if line.location_counter is not None else "000000"
+                    raise ValueError(
+                        f"Error : Unidentified Symbol\n"
+                        f"PC    : {pc_str}\n"
+                        f"Detail: symbol '{base_symbol}' is referenced but not defined."
+                    )
                 continue
 
             elif line.instruction.upper() == "END":

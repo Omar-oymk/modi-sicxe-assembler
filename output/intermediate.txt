@@ -1,40 +1,31 @@
 Location counter  Symbol   Instructions  Reference 
 ----------------  -------  ------------  ----------
-0000              TESTPG   START         0         
-0000                       FIRST         FIX       
-0000                       FLOAT                   
-0001                       HIO                     
-0002                       NORM                    
-0003                       CLEAR         X         
-0005                       TIXR          T         
-0007                       COMPR         A,S       
-0009                       SHIFTL        T,4       
-000B                       SVC           1         
-000D                       LDA           #5        
-0010                       LDB           #BASE1    
-0013                       BASE          BASE1     
-0013                       LDA           ALPHA     
-0016                       LDA           @PTR      
-0019                       STA           BETA      
-001C                       STCH          GAMMA,X   
-001F                       ADD           &C'EOF'   
-0022                       SUB           &X'0A'    
-0025                       +JSUB         ROUTN     
-0029                       +LDA          #4097     
-002D                       JSUB          ROUTN     
-0030                       RSUB                    
+0000              TEST     START         0         
+0000                       CLEAR         A         
+0002                       CLEAR         X         
+                           USE           DEFAULTB  
+0000                       LDA           #5        
+0003                       STA           TMP1      
+0006                       LDA           @PTR      
+0009                       +JSUB         SUBROUTINE
+000D                       ADD           &X'0F'    
+0010                       ADD           &X'0F'    
+0013                       COMP          &C'EOF'   
                            USE           CDATA     
-0000              ALPHA    WORD          1         
-0003              BETA     RESW          1         
-0006              PTR      WORD          0         
-0009              BASE1    WORD          4096      
-000C              CH1      BYTE          C'Z'      
-000F              HX1      BYTE          X'FA'     
+0000              TMP1     WORD          10        
+0003              TMP2     RESW          2         
+0009              VAL1     WORD          100       
                            USE           CBLKS     
-0000              GAMMA    RESB          32        
-0020              ARR      RESW          5         
-002F              ROUTN    LDX           #0        
-0032                       ADDR          A,X       
-0034                       RMO           X,A       
-0036                       RSUB                    
-0039                       END           FIRST     
+0000              BIG1     RESB          50        
+0032              BIG2     RESB          200       
+                           USE           DEFAULT   
+0004              PTR      WORD          TMP1      
+0007                       LDX           PTR       
+                           USE           DEFAULTB  
+0016                       LDA           VAL1      
+0019                       STA           RESULT    
+001C              SUBROUTINELDA           #1        
+001F                       ADD           TMP1      
+0022                       RSUB                    
+0025              RESULT   RESW          1         
+0028                       END           TEST      

@@ -1,3 +1,0 @@
-
-        BYTE FORMAT ERROR at line 0
-        Invalid operand: C'HELLO,

@@ -4,7 +4,7 @@ from core import tables
 
 def assemble_format3(line, symtab, pooltab, base_register, current_block, block_table):
 
-    operand_info = resolve_operand(line.operand, symtab, pooltab, current_block, block_table)
+    operand_info = resolve_operand(line, symtab, pooltab, current_block, block_table)
 
     if operand_info is None or operand_info["target"] is None:  # add this guard
         return None
@@ -57,8 +57,11 @@ def assemble_format3(line, symtab, pooltab, base_register, current_block, block_
 
     # if neither works, we have an error (needs to be handled and written to and error file)
     if line.operand and line.operand.strip().startswith("&"):
+        pc_str = f"{line.location_counter:06X}" if line.location_counter is not None else "000000"
         raise ValueError(
-            f"POOLVAR error at PC={line.location_counter:04X}"
+            f"Error : POOLVAR Error\n"
+            f"PC    : {pc_str}\n"
+            f"Detail: pool variable '{line.operand.strip()}' cannot be addressed using PC-relative or Base-relative addressing."
         )
 
     raise ValueError(
@@ -68,7 +71,7 @@ def assemble_format3(line, symtab, pooltab, base_register, current_block, block_
 
 def assemble_format4(line, symtab, pooltab, current_block, block_table):
 
-    operand_info = resolve_operand(line.operand, symtab, pooltab, current_block, block_table)
+    operand_info = resolve_operand(line, symtab, pooltab, current_block, block_table)
 
     if operand_info is None or operand_info["target"] is None:  # match format3 guard
         return None
@@ -141,8 +144,8 @@ def assemble_byte(operand, line=None):
         BYTE FORMAT ERROR at line {line}
         Invalid operand: {operand}""")
     
-def assemble_word(operand, symtab=None):
-    operand = operand.strip()
+def assemble_word(line, symtab=None):
+    operand = line.operand.strip()
 
     # If it's a symbol
     if symtab and operand in symtab:
@@ -152,7 +155,12 @@ def assemble_word(operand, symtab=None):
         try:
             value = int(operand, 0)
         except ValueError:
-            raise ValueError(f"Invalid WORD operand: {operand}")
+            pc_str = f"{line.location_counter:06X}" if line.location_counter is not None else "000000"
+            raise ValueError(
+                f"Error : Unidentified Symbol\n"
+                f"PC    : {pc_str}\n"
+                f"Detail: symbol '{operand}' is referenced but not defined."
+            )
 
     # 3-byte signed range check (SIC/XE WORD = 24-bit)
     if not (-2**23 <= value <= 2**24 - 1):
@@ -170,7 +178,7 @@ def handle_directive(line, symtab):
         return assemble_byte(line.operand, line.location_counter)
 
     elif instr == "WORD":
-        return assemble_word(line.operand, symtab)
+        return assemble_word(line, symtab)
 
     elif instr in ["RESB", "RESW", "START", "END", "BASE", "USE"]:
         return None

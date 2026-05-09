@@ -1,0 +1,5 @@
+COPY     START     0
+FIRST    CLEAR     X
+         CLEAR     A
+         LDA       UNKNOWN_SYM
+         END       FIRST

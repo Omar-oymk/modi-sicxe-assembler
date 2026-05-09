@@ -1,0 +1,13 @@
+TEST    START   0
+
+        USE     DEFAULTB
+        LDA     &X'01'
+
+        USE     CBLKS
+BIG     RESB    5000
+
+        USE     DEFAULTB
+        LDA     BIG
+        ADD     &X'02'
+
+        END
