@@ -3,8 +3,7 @@ def handle_blocks(lines):
     i = 0 
     
     for line in lines:
-        if line.instruction == 'USE' or i == 0 or line.operand.startswith('&'):
-
+        if line.instruction == 'USE' or i == 0:
             block_list.append({
                 "BLOCK NAME" : "DEFAULT" if i == 0 else line.operand,
                 "BLOCK NUMBER": i,
@@ -24,14 +23,35 @@ def handle_blocks(lines):
 
 def adjust_final_blocks(block_list, pool_table, current_block):
     total_program_length = 0
-
     adjusted_block_list = []
     size = 0
-    for i, item in enumerate(block_list):
-        adjusted_block_list.append(item)
-        if block_list[i]['BLOCK NAME'] == current_block:
 
-            for item in pool_table:
+    block_size = 0
+    # we want to add all the duplicated blocks first the size of them
+    for i, block in enumerate(block_list):
+        block_size += int(block['SIZE'], 16)
+        for item in block_list[i+1:]:
+            if block['BLOCK NAME'] == item['BLOCK NAME']:
+                block_size += int(item['SIZE'], 16)
+                # DELETE THE DUPLICATE BLOCK
+                block_list.remove(item)
+        block_list[i]['SIZE'] = f'{block_size:04X}'
+        block_size = 0
+            
+    # we want to loop first through the block list and add all the blocks to the adjusted block list
+    #  until we find the block at which the pool is in,
+    #  then we want to add the pool block to the adjusted block list
+    #  and then we want to add the remaining blocks to the adjusted block list
+    #  with their new addresses calculated from the pool block size and address
+
+
+    for i, item in enumerate(block_list):
+
+        adjusted_block_list.append(item)
+
+        if block_list[i]['BLOCK NAME'] == current_block:    # when u find the block at which the pool is in start the loop
+
+            for item in pool_table:     # calculates size from pool table
                 size += item['LENGTH']
 
             adjusted_block_list.append({
@@ -40,6 +60,7 @@ def adjust_final_blocks(block_list, pool_table, current_block):
                 "ADDRESS": pool_table[0]['ADDRESS'],
                 'SIZE': f'{size:04X}'
             })
+
             for item in block_list[i+1:]:
                 last_block = adjusted_block_list[-1]
 

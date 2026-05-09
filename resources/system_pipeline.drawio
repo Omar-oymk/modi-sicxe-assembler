@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="cVPeKW7dVDqQBi0CuPoO" name="Page-1">
-        <mxGraphModel dx="1130" dy="230" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1755" dy="599" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -52,7 +52,7 @@
                 <mxCell id="12" value="Symbol_table.txt" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="-30" y="80" width="120" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="13" value="block_table" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="13" value="block_table.txt" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="-30" y="490" width="120" height="80" as="geometry"/>
                 </mxCell>
                 <mxCell id="15" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="8" target="12" edge="1">
@@ -113,7 +113,7 @@
                 <mxCell id="46" value="" style="edgeStyle=none;html=1;" parent="1" source="40" target="45" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="40" value="&lt;font&gt;Checks for opcode in opcode table in tables.py&lt;br&gt;&lt;br&gt;IS IT A VALID INSTRUCTION?&lt;/font&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="40" value="Checks for opcode in opcode table in tables.py&lt;br&gt;&lt;br&gt;IS IT A VALID INSTRUCTION?" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="-230" y="900" width="100" height="100" as="geometry"/>
                 </mxCell>
                 <mxCell id="43" value="" style="edgeStyle=none;html=1;" parent="1" source="40" target="44" edge="1">
