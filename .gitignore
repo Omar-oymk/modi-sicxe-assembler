@@ -1,0 +1,16 @@
+# ignore pycahce 
+__pycache__/
+# ignore venv
+venv/
+# ignore .env
+.env
+
+# ignore .vscode
+.vscode/
+
+# ignore expected results, and output folder
+expected_results/
+output/
+
+# ignore .DS_Store
+.DS_Store

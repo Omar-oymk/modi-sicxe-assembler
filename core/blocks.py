@@ -3,7 +3,7 @@ def handle_blocks(lines):
     i = 0 
     
     for line in lines:
-        if line.instruction == 'USE' or i == 0:
+        if line.instruction == 'USE' or i == 0: 
             block_list.append({
                 "BLOCK NAME" : "DEFAULT" if i == 0 else line.operand,
                 "BLOCK NUMBER": i,
@@ -32,7 +32,7 @@ def adjust_final_blocks(block_list, pool_table, current_block):
         block_size += int(block['SIZE'], 16)
         for item in block_list[i+1:]:
             if block['BLOCK NAME'] == item['BLOCK NAME']:
-                block_size += int(item['SIZE'], 16)
+                block_size = int(item['SIZE'], 16) - int(block['ADDRESS'], 16)
                 # DELETE THE DUPLICATE BLOCK
                 block_list.remove(item)
         block_list[i]['SIZE'] = f'{block_size:04X}'

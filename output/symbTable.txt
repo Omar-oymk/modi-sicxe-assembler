@@ -1,4 +1,4 @@
 SYMBOL NAME  ADDRESS 
-TEMP         0055    
-VAL          0058    
-BIG          005B    
+TEMP         006F    
+VAL          0072    
+BIG          0075    
