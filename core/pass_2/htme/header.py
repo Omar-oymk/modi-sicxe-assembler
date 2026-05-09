@@ -25,4 +25,4 @@ def header_record(intermediate_table, block_table):
     program_name_str = program_name(intermediate_table)
     initial_counter_value = initial_counter(intermediate_table)
     program_length = total_length(intermediate_table, block_table)
-    return f"H^{program_name_str}^{initial_counter_value:06X}^{program_length:06X}"
+    return f"H.{program_name_str:X<6}.{initial_counter_value:06X}.{program_length:06X}"

@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
+from htme.modification import modification_record
 from htme.header import total_length, initial_counter, final_counter, header_record
+from htme.text import text_record
 
 import parser_pass2 as parse
 from assemble_line import assemble_line
@@ -62,13 +64,20 @@ def pass_2():
     # print(total_length(intermediate_table))
 
     print(header_record(intermediate_table, block_table))
+    print(text_record(intermediate_table, block_table))
+    print(modification_record(intermediate_table, block_table))
 
     with open(Path(__file__).parents[2] / 'output' / "out_pass2.txt", "w") as f:
         f.write(f"Location counter  Symbol  Instructions  Reference  Obj. code\n")
         f.write(f"-------------------------------------------------------------\n")
         for line in intermediate_table:
-            f.write(f"{line.location_counter:04X}              {line.label if line.label else 'None':<10}  {line.instruction if line.instruction else 'None':<10}  {line.operand if line.operand else 'None':<10}  {line.object_code if line.object_code else 'None':<10}\n")
-
+            f.write(
+                f"{(f'{line.location_counter:04X}' if line.location_counter is not None else ''):<4}  "
+                f"{line.label if line.label else '':<10}     "
+                f"{line.instruction if line.instruction else '':<10}     "
+                f"{line.operand if line.operand else '':<10}      "
+                f"{line.object_code if line.object_code else 'No object code':<10}\n"
+            )
 
         # line.object_code = assemble_line(line, symbol_table, pool_table, base_register, current_block, block_table)
 
