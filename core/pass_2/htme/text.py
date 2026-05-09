@@ -101,6 +101,47 @@ def text_record_list(pass_2_table, block_table):
     flush()
     return t_records
 
+def text_record_pools(pass_2_table, pool_table):
 
-def text_record(text_records, block_table):
-    return f"\n".join(text_record_list(text_records, block_table))
+    t_records = []
+    t_record = {
+        "STARTING ADDRESS": None,
+        "LENGTH": 0,
+        "INSTRUCTIONS": []
+    }
+
+    def flush():
+        if t_record["LENGTH"] > 0:
+            text = ("T." + f"{t_record['STARTING ADDRESS']:06X}" + "." +
+                    f"{t_record['LENGTH']:02X}" + "." +
+                    ".".join(t_record['INSTRUCTIONS']))
+            t_records.append(text)
+            t_record["STARTING ADDRESS"] = None
+            t_record["LENGTH"] = 0
+            t_record["INSTRUCTIONS"].clear()
+
+    for entry in pool_table.values():  
+        
+        if t_record["STARTING ADDRESS"] is None:
+            t_record["STARTING ADDRESS"] = entry["address"]
+
+        if entry["object_code"].startswith("'C"):
+            new_len = entry["length"]
+        elif entry["object_code"].startswith("'X"):
+            new_len = entry["length"]
+        else:
+            new_len = len(entry["object_code"]) // 2
+
+        if t_record["LENGTH"] + new_len > 30:
+            flush()
+            t_record["STARTING ADDRESS"] = entry["address"]
+
+        t_record["LENGTH"] += new_len
+        t_record["INSTRUCTIONS"].append(entry["object_code"])
+
+    flush()
+    return t_records
+
+
+def text_record(text_records, block_table, pool_table):
+    return f"\n".join(text_record_list(text_records, block_table)) + "\n" + f"\n".join(text_record_pools(text_records, pool_table))

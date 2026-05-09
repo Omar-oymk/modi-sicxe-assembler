@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from htme.end import end_record
 from htme.modification import modification_record
 from htme.header import total_length, initial_counter, final_counter, header_record
 from htme.text import text_record
@@ -27,45 +28,38 @@ def pass_2():
     pool_table = parse.parse_poolTable()
     intermediate_table = parse.parse_intermediate()
 
-    # DEBUG — remove after fixing
-    # print("=== SYMTAB ===")
-    # for k, v in symbol_table.items():
-    #     print(f"  {k!r}: {v:04X}")
 
-    # print("=== POOLTAB ===")
-    # for k, v in pool_table.items():
-    #     print(f"  {k!r}: {v:04X}")
+    try:
+        for i, line in enumerate(intermediate_table):
+            if line.instruction.upper() == "USE":
+                current_block = line.operand if line.operand else "DEFAULT"
+                continue
 
-    # print("=== BLOCK TABLE ===")
-    # for k, v in block_table.items():
-    #     print(f"  {k!r}: {v}")
+            elif line.instruction.upper() == "BASE":
+                base_symbol = line.operand
+                base_register = symbol_table.get(base_symbol)
+                if base_register is None:
+                    print(f"Warning: BASE symbol '{base_symbol}' not found in symtab")
+                continue
 
-    for i, line in enumerate(intermediate_table):
-        if line.instruction.upper() == "USE":
-            current_block = line.operand if line.operand else "DEFAULT"
-            continue
+            elif line.instruction.upper() == "END":
+                break
 
-        elif line.instruction.upper() == "BASE":
-            base_symbol = line.operand
-            base_register = symbol_table.get(base_symbol)
-            if base_register is None:
-                print(f"Warning: BASE symbol '{base_symbol}' not found in symtab")
-            continue
+            # handle directives (not complete - just set location counter for now)
+            intermediate_table[i].object_code=assemble_line(line, symbol_table, pool_table, base_register, current_block, block_table)
 
-        elif line.instruction.upper() == "END":
-            break
+    except ValueError as e:
 
-        # handle directives (not complete - just set location counter for now)
-        intermediate_table[i].object_code=assemble_line(line, symbol_table, pool_table, base_register, current_block, block_table)
-        # print(line.location_counter, line.instruction, line.object_code)
+        with open("error.txt", "w") as f:
+            f.write(str(e))
 
-    # print(initial_counter(intermediate_table))
-    # print(final_counter(intermediate_table))
-    # print(total_length(intermediate_table))
+        sys.exit(1)
+
 
     print(header_record(intermediate_table, block_table))
-    print(text_record(intermediate_table, block_table))
+    print(text_record(intermediate_table, block_table, parse.parse_poolTable_for_text_rec()))
     print(modification_record(intermediate_table, block_table))
+    print(end_record(intermediate_table, block_table))
 
     with open(Path(__file__).parents[2] / 'output' / "out_pass2.txt", "w") as f:
         f.write(f"Location counter  Symbol  Instructions  Reference  Obj. code\n")
@@ -78,6 +72,12 @@ def pass_2():
                 f"{line.operand if line.operand else '':<10}      "
                 f"{line.object_code if line.object_code else 'No object code':<10}\n"
             )
+
+    with open(Path(__file__).parents[2] / 'output' / "HTME.txt", "w") as f:
+        f.write(header_record(intermediate_table, block_table) + "\n")
+        f.write(text_record(intermediate_table, block_table, parse.parse_poolTable_for_text_rec()) + "\n")
+        f.write(modification_record(intermediate_table, block_table) + "\n")
+        f.write(end_record(intermediate_table, block_table))
 
         # line.object_code = assemble_line(line, symbol_table, pool_table, base_register, current_block, block_table)
 
