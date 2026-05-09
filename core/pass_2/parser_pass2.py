@@ -202,3 +202,48 @@ def parse_poolTable():
         pool_table[name] = address
 
     return pool_table
+
+
+
+def parse_poolTable_for_text_rec():
+    pool_table = {}
+
+    file_path = Path(__file__).parents[2] / "output" / "poolTable.txt"
+
+    with open(file_path, "r") as f:
+        lines = f.readlines()
+
+    for line in lines:
+        line = line.strip()
+
+        if not line:
+            continue
+
+        parts = re.split(r'\s+', line)
+
+        # skip header
+        if parts[0].lower() == "pool":
+            continue
+
+        # must have at least 4 columns
+        if len(parts) < 4:
+            continue
+
+        name = parts[0]
+        address = parts[1]
+        length = parts[2]
+        object_code = parts[3]
+
+        try:
+            address = int(address, 16)
+            length = int(length)
+        except ValueError:
+            continue
+
+        pool_table[name] = {
+            "address": address,
+            "length": length,
+            "object_code": object_code
+        }
+
+    return pool_table

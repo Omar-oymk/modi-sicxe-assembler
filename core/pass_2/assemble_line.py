@@ -60,6 +60,11 @@ def assemble_format3(line, symtab, pooltab, base_register, current_block, block_
             )
 
     # if neither works, we have an error (needs to be handled and written to and error file)
+    if line.operand and line.operand.strip().startswith("&"):
+        raise ValueError(
+            f"POOLVAR error at PC={line.location_counter:04X}"
+        )
+
     raise ValueError(
         f"Address out of range for format 3 at LC={line.location_counter:04X}, target={target:04X}"
     )
