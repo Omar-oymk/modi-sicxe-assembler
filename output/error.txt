@@ -1,4 +1,2 @@
-Error : Unidentified Block Name
-PC    : 00002F
-Line  : line 34
-Detail: unknown block name 'CODE2'; valid blocks are CBLKS, CDATA, DEFAULT, DEFAULTB
+ERROR OCCURED IN LINE: 33: ['SUBROUTINE']
+PROGRAM TERMINATED AT PASS 1.

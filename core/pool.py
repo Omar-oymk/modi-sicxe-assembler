@@ -54,6 +54,9 @@ def handle_pool(lines, block_table):
                     length = int(len(line.operand[3:-1])//2)
                     object_code = line.operand[3:-1]
 
+                if pool_name in [item['POOL NAME'] for item in pool_table]:
+                    continue
+
                 pool_table.append({
                     'POOL NAME': pool_name,
                     'ADDRESS': address,

@@ -1,0 +1,51 @@
+TESTPG  START   0
+FIRST   CLEAR   X
+        CLEAR   A
+        FIX
+        FLOAT
+        HIO
+
+        USE     DEFAULTB
+        LDA     #5
+        STA     COUNT
+        LDB     #TABLE
+        BASE    TABLE
+
+        LDA     ALPHA
+        ADD     &C'EOF'
+        SUB     &X'1A'
+        MUL     VALUE
+        DIV     #2
+
+        +JSUB   RDREC
+        +LDT    TABLE
+        COMPR   A,S
+        TIXR    T
+
+        LDA     @PTR
+        STA     RESULT
+        STCH    BUFFER,X
+        +LDX    BIGTAB
+
+        RSUB
+
+        USE     CDATA
+ALPHA   WORD    10
+VALUE   WORD    4
+COUNT   RESW    1
+RESULT  RESW    1
+PTR     WORD    ALPHA
+TABLE   BYTE    C'HELLO'
+MARK    BYTE    X'F1'
+
+        USE     CBLKS
+BUFFER  RESB    4096
+BIGTAB  RESW    1024
+
+        USE     DEFAULTB
+RDREC   LDA     #0
+        ADD     &C'AB'
+        STA     COUNT
+        RSUB
+
+        END     FIRST

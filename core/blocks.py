@@ -26,6 +26,7 @@ def adjust_final_blocks(block_list, pool_table, index_of_pool):
     adjusted_block_list = []
     size = 0
     block_size = 0
+    address_pool = 0
 
 
     # we want to add all the duplicated blocks first the size of them
@@ -64,10 +65,13 @@ def adjust_final_blocks(block_list, pool_table, index_of_pool):
             for item in pool_table:     # calculates size from pool table
                 size += item['LENGTH']
 
+            for item in adjusted_block_list:
+                address_pool += int(item['SIZE'], 16)
+
             adjusted_block_list.append({
                 "BLOCK NAME": "POOL",
                 "BLOCK NUMBER": index_of_pool,
-                "ADDRESS": pool_table[0]['ADDRESS'],
+                "ADDRESS": f"{address_pool:04X}",
                 'SIZE': f'{size:04X}'
             })
 
@@ -87,4 +91,11 @@ def adjust_final_blocks(block_list, pool_table, index_of_pool):
 
     for item in adjusted_block_list:
         total_program_length += int(item['SIZE'], 16)
-    return adjusted_block_list, f'{total_program_length:04X}'
+
+    for i, item in enumerate(pool_table):
+        if i == 0:
+            pool_table[i]['ADDRESS'] = f'{address_pool:04X}'
+        else:
+            pool_table[i]['ADDRESS'] = f'{int(pool_table[i-1]["ADDRESS"], 16) + pool_table[i-1]["LENGTH"]:04X}'
+
+    return adjusted_block_list, f'{total_program_length:04X}', pool_table
