@@ -36,8 +36,11 @@ def handle_symboltable(lines, block_table):
 
 
 block_list = blocks.handle_blocks(line_list)
-pool_list, current_block, next_block = pool.handle_pool(line_list, block_list)
-adjusted_block_list, total_program_length = blocks.adjust_final_blocks(block_list, pool_list, current_block)
+# pool_list, current_block, next_block = pool.handle_pool(line_list, block_list)
+pool_list, index_of_pool = pool.handle_pool(line_list, block_list)
+print(pool_list, " ", index_of_pool)
+# adjusted_block_list, total_program_length = blocks.adjust_final_blocks(block_list, pool_list, current_block)
+adjusted_block_list, total_program_length = blocks.adjust_final_blocks(block_list, pool_list, index_of_pool)
 symb_table = handle_symboltable(line_list, adjusted_block_list)
 # print(block_list)
 

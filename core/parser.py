@@ -8,7 +8,7 @@ location_counters = []
 line_list = []
 current_lc : int = 0x0000
 
-def parse_lines(file_path = Path(__file__).parents[1] / "input" / "in3.txt"):
+def parse_lines(file_path = Path(__file__).parents[1] / "input" / "in.txt"):
     with open(file_path, "r") as f:
         lines = f.readlines()
         

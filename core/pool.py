@@ -21,19 +21,21 @@ def handle_pool(lines, block_table):
 
     current_block_line = lines[0]
     found_symbol = False
+    index_of_pool = 1
 
     for line in lines:
         if line.operand:
-            if search_for_next and (line.instruction == 'USE' or line.instruction == 'END'):
-                next_block = line.operand
-                next_block_line = line
-                search_for_next = False
+            # if search_for_next and (line.instruction == 'USE' or line.instruction == 'END'):
+            #     next_block = line.operand
+            #     next_block_line = line
+            #     search_for_next = False
             
-            if line.instruction == 'USE' and not block_found:
-                current_block = line.operand
-                current_block_line = line
+            # if line.instruction == 'USE' and not block_found:
+            #     current_block = line.operand
+            #     current_block_line = line
 
             if line.instruction == 'USE' and not found_symbol:
+                index_of_pool += 1
                 for item in block_table:
                     if item['BLOCK NAME'] == line.operand:
                         prev_block_sizes.append(int(item['SIZE'], 16))
@@ -41,8 +43,8 @@ def handle_pool(lines, block_table):
             if line.operand.startswith('&'):
                 pool_name = line.operand
                 address = line.location_counter
-                block_found = True
-                search_for_next = True
+                # block_found = True
+                # search_for_next = True
                 found_symbol = True
 
                 if tables.is_char_operand(line.operand[1:]):
@@ -68,4 +70,4 @@ def handle_pool(lines, block_table):
 
 
             
-    return pool_table, current_block, next_block
+    return pool_table, index_of_pool
