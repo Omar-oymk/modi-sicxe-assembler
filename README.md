@@ -123,6 +123,5 @@ The assembler performs strict validation. If an error is detected, the process t
 - **Bitwise Operations:** Heavy use of bitwise shifting and masking to assemble the precise `n, i, x, b, p, e` flags required by SIC/XE format 3 and 4 instructions.
 
 ## 👥 Contributors
-- [Placeholder: Abdulrahman / Team Member 1]
-- [Placeholder: Team Member 2]
-- [Placeholder: Team Member 3]
+- [Omar Ossama]
+- [Abdullah Ahmed]
