@@ -30,8 +30,8 @@ PTR     WORD    TMP1
         LDA     VAL1
         STA     RESULT
 
-SUBROUTINE
-        LDA     #1
+SUBROUTINE      LDA     #1
+        
         ADD     TMP1
         RSUB
 

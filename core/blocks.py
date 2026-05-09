@@ -21,13 +21,16 @@ def handle_blocks(lines):
     
     return block_list
 
+
 def adjust_final_blocks(block_list, pool_table, index_of_pool):
+    print(index_of_pool)
     total_program_length = 0
     adjusted_block_list = []
     size = 0
     block_size = 0
     address_pool = 0
 
+    pool_block_name = block_list[index_of_pool - 1]['BLOCK NAME']
 
     # we want to add all the duplicated blocks first the size of them
     for i, block in enumerate(block_list):
@@ -35,59 +38,49 @@ def adjust_final_blocks(block_list, pool_table, index_of_pool):
         for item in block_list[i+1:]:
             if block['BLOCK NAME'] == item['BLOCK NAME']:
                 block_size = int(item['SIZE'], 16) - int(block['ADDRESS'], 16)
-                # DELETE THE DUPLICATE BLOCK
+                removed_index = block_list.index(item)
                 block_list.remove(item)
-                index_of_pool -= 1
+                if removed_index < index_of_pool:
+                    index_of_pool -= 1
         block_list[i]['SIZE'] = f'{block_size:04X}'
         block_size = 0
-            
-    # we want to loop first through the block list and add all the blocks to the adjusted block list
-    #  until we find the block at which the pool is in,
-    #  then we want to add the pool block to the adjusted block list
-    #  and then we want to add the remaining blocks to the adjusted block list
-    #  with their new addresses calculated from the pool block size and address
+    
+    print(f'Index of pool after deduplication: {index_of_pool}')
 
+    for item in pool_table:
+        size += item['LENGTH']
+
+    pool_inserted = False
     for i, item in enumerate(block_list):
-        
-        if i==0:
+
+        if i == 0:
             adjusted_block_list.append(item)
         else:
             adjusted_block_list.append({
                 "BLOCK NAME": item['BLOCK NAME'],
-                "BLOCK NUMBER": i,
+                "BLOCK NUMBER": len(adjusted_block_list),
                 "ADDRESS": f"{int(adjusted_block_list[-1]['ADDRESS'], 16) + int(adjusted_block_list[-1]['SIZE'], 16):04X}",
                 "SIZE": item['SIZE']
             })
 
-        # if block_list[i]['BLOCK NAME'] == current_block:    # when u find the block at which the pool is in start the loop
-        if i == index_of_pool - 1:    # when u find the block at which the pool is in start the loop
-
-            for item in pool_table:     # calculates size from pool table
-                size += item['LENGTH']
-
-            for item in adjusted_block_list:
-                address_pool += int(item['SIZE'], 16)
-
+        if i == index_of_pool - 1 and not pool_inserted:
+            address_pool = int(adjusted_block_list[-1]['ADDRESS'], 16) + int(adjusted_block_list[-1]['SIZE'], 16)
             adjusted_block_list.append({
                 "BLOCK NAME": "POOL",
-                "BLOCK NUMBER": index_of_pool,
+                "BLOCK NUMBER": len(adjusted_block_list),
                 "ADDRESS": f"{address_pool:04X}",
-                'SIZE': f'{size:04X}'
+                "SIZE": f"{size:04X}"
             })
+            pool_inserted = True
 
-            for item in block_list[i+1:]:
-                last_block = adjusted_block_list[-1]
-
-                new_address = int(last_block['ADDRESS'], 16) + int(last_block['SIZE'], 16)
-
-                adjusted_block_list.append({
-                    "BLOCK NAME": item['BLOCK NAME'],
-                    "BLOCK NUMBER": last_block['BLOCK NUMBER'] + 1,
-                    "ADDRESS": f"{new_address:04X}",
-                    "SIZE": item['SIZE']
-                })
-            
-            break
+    if not pool_inserted:
+        address_pool = int(adjusted_block_list[-1]['ADDRESS'], 16) + int(adjusted_block_list[-1]['SIZE'], 16)
+        adjusted_block_list.append({
+            "BLOCK NAME": "POOL",
+            "BLOCK NUMBER": len(adjusted_block_list),
+            "ADDRESS": f"{address_pool:04X}",
+            "SIZE": f"{size:04X}"
+        })
 
     for item in adjusted_block_list:
         total_program_length += int(item['SIZE'], 16)
