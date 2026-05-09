@@ -14,3 +14,9 @@ output/
 
 # ignore .DS_Store
 .DS_Store
+
+# Generated assembler output files
+output/PoolTable.txt
+output/blockTable.txt
+output/out_pass2.txt
+output/symbTable.txt
