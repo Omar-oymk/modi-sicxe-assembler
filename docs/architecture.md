@@ -9,7 +9,9 @@ The assembler is built on a classical two-pass architecture, cleanly separating 
 
 ### 1. Data Flow
 1. **Input Stage:** The system reads an assembly text file (`.txt`) containing SIC/XE instructions, directives, and comments.
-2. **Pass 1 (The Mapping Phase):** The parser cleans the input, extracts symbols, evaluates block assignments (`USE`), calculates literal pools (`&`), and tracks the Location Counter (LC).
+2. **Pass 1 (The Mapping Phase):** The logic is unconventionally split across two modules:
+   - **Pass 1a (The Overloaded Parser):** `core/parser.py` cleans the input, extracts symbols, evaluates block assignments (`USE`), calculates literal pools (`&`), tracks the Location Counter (LC), and builds `Line` objects.
+   - **Pass 1b (Table Aggregation):** `core/pass1.py` consumes the results of the parser to finalize the sizes and positions of blocks, and ultimately constructs the Symbol and Pool tables.
 3. **Table Construction:** During Pass 1, several critical tables are constructed in memory and dumped to the `output/` directory:
    - `intermediate.txt`: The normalized, line-by-line representation of the source.
    - `symbTable.txt`: Absolute memory addresses of all labels.
@@ -21,15 +23,12 @@ The assembler is built on a classical two-pass architecture, cleanly separating 
 ------------------------------------------------
 ## Core System Components
 
-### 1. Parser & Lexer (`core/parser.py`)
-- **Responsibility:** Acts as the entry point for the source code. It handles lexical analysis by stripping out comments and whitespace, resolving strings, and splitting statements into their constituent tokens (Label, Instruction, Operand).
-- **Output:** A list of structured `Line` objects representing every actionable statement.
+### 1. Parser, Lexer & LC Engine (`core/parser.py`)
+- **Responsibility:** This module serves as "Pass 1a". It acts as the entry point for the source code, handling lexical analysis by stripping out comments, but it is heavily **overloaded**. It acts as a semantic analyzer and partial assembler by actively tracking the simulated Location Counter (LC), validating directives, and switching Location Counters when `USE` is encountered.
+- **Output:** A list of structured `Line` objects representing every actionable statement, alongside raw relative LCs.
 
-### 2. The Location Counter (LC) Engine (`core/pass1.py` & `core/tables.py`)
-- **Responsibility:** Tracks simulated memory allocation. 
-- **Mechanism:** It increments the LC based on the footprint of the instruction:
-  - Formats 1, 2, 3, and 4 increment the LC by 1, 2, 3, and 4 bytes respectively.
-  - Directives like `RESW`, `RESB`, `WORD`, and `BYTE` dynamically increment the LC based on the evaluated size of their operands.
+### 2. Table Orchestrator (`core/pass1.py` & `core/tables.py`)
+- **Responsibility:** This module serves as "Pass 1b". Despite its name, it does *not* do the heavy lifting of Pass 1 (LC tracking and parsing). Instead, it acts as a passive aggregator that consumes the `Line` objects produced by `parser.py` to finalize the Block Table, Pool Table, and Symbol Table.
 
 ### 3. Block Manager (`core/blocks.py`)
 - **Responsibility:** Manages the separation of concerns within the assembly file using the `USE` directive.

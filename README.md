@@ -13,12 +13,8 @@ The assembler strictly adheres to a two-pass architecture:
 ## 🏗️ Architecture
 
 The system pipeline is cleanly separated into modular components:
-1. **Lexical Analysis & Parsing:** Reads input, removes comments, identifies tokens, and categorizes instructions/directives.
-2. **Pass 1 Pipeline (`core/pass1.py`):**
-   - Calculates the Location Counter (LC).
-   - Manages multiple program blocks (`DEFAULT`, `DEFAULTB`, `CDATA`, `CBLKS`).
-   - Identifies and allocates literal pools (POOL blocks).
-   - Constructs the Symbol Table, Block Table, and Pool Table.
+1. **Lexical Analysis & Parsing (`core/parser.py`):** Acts as "Pass 1a". This module is heavily overloaded: it reads input, removes comments, evaluates block assignments (`USE`), calculates literal pools (`&`), and tracks the relative Location Counters (LC) across blocks.
+2. **Table Aggregation (`core/pass1.py`):** Acts as "Pass 1b". It acts as a passive orchestrator that consumes the output of the parser to construct the absolute Symbol Table, Block Table, and Pool Table.
 3. **Pass 2 Pipeline (`core/pass_2/pass2.py`):**
    - Resolves PC-relative, Base-relative, Immediate, Indirect, and Extended addressing modes.
    - Generates format 1, 2, 3, and 4 object codes.
@@ -113,9 +109,9 @@ The assembler performs strict validation. If an error is detected, the process t
 
 **Handled Errors Include:**
 1. **Unidentified Block Names:** Using a `USE` directive with an unregistered block.
-2. **Undefined Symbols:** Referencing a label that doesn't exist in the Symbol Table.
+2. **Unidentified Symbol:** Referencing a label that doesn't exist in the Symbol Table (raises a precise error mapping to the program counter).
 3. **Invalid Instructions:** Using an unrecognized mnemonic.
-4. **POOLVAR Addressing Failures:** Attempting to address a literal pool variable that is out of range for both PC and Base-relative addressing.
+4. **POOLVAR Error:** Attempting to address a literal pool variable that is physically placed too far to be reached via PC or Base-relative addressing.
 
 ## 🛠️ Implementation Details
 - **Language:** Python 3.x

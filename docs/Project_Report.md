@@ -16,17 +16,16 @@ The primary objectives of this implementation were:
 The assembler is modularized into distinct Python packages. The high-level data flow is as follows:
 
 1. **Source Input:** The raw `.txt` assembly file is read by the `parser.py`.
-2. **Pass 1 (Address Resolution):** The parser cleans the input (removing comments and whitespace) and passes tokens to Pass 1. Pass 1 iterates through the lines, updating a simulated Location Counter (LC).
-3. **Table Generation:** During Pass 1, the `blocks.py` and `pool.py` modules construct the Block Table and Pool Table. The LC values are adjusted based on the block sizes, and the absolute Symbol Table is generated.
-4. **Intermediate Output:** The results of Pass 1 are written to `intermediate.txt`, acting as the canonical source for Pass 2.
+2. **Pass 1a (Parsing & LC Tracking):** `parser.py` is an overloaded module. It cleans the input, validates instructions and block assignments (`USE`), and acts as the semantic engine to track Location Counters (LC) across different blocks, creating an intermediate list of `Line` objects.
+3. **Pass 1b (Table Generation):** `pass1.py` acts as a passive aggregator. It consumes the `Line` list from the parser to calculate the final contiguous block sizes and generate the absolute Symbol Table, Block Table, and Pool Table.
+4. **Intermediate Output:** The results of this split Phase 1 are written to `intermediate.txt`, acting as the canonical source for Pass 2.
 5. **Pass 2 (Code Generation):** `pass2.py` reads the intermediate file and tables. For each instruction, it delegates object code calculation to `assemble_line.py`, which uses `flags_nixpbe.py` to resolve the precise bits for SIC/XE flags.
 6. **HTME Generation:** The final step involves packing the generated object codes into properly formatted Header, Text, Modification, and End records.
 
-## 4. Pass 1 Implementation
-The core responsibility of Pass 1 is memory mapping.
-- **Location Counter Tracking:** Maintained globally and updated per line based on instruction format (1, 2, 3, or 4) or directive footprint (e.g., `RESW` adds `operand * 3`).
-- **Block Tracking:** When a `USE` directive is encountered, the current LC for the active block is saved, and the LC is swapped to the saved state of the new block.
-- **Address Adjustment:** Once all source lines are processed, `adjust_final_blocks` sequentially places the blocks in memory (`DEFAULT` -> `DEFAULTB` -> `POOL` -> `CDATA` -> `CBLKS`). Absolute addresses for all symbols are then computed by adding the relative LC to the block's absolute starting address.
+## 4. Pass 1 Implementation (Architectural Quirk)
+The implementation of Pass 1 contains a notable architectural quirk. Instead of a cohesive single module, the responsibility is split:
+- **`parser.py` (Pass 1a):** This module is heavily overloaded. It maintains the Location Counter globally and updates it per line based on instruction format (1, 2, 3, or 4) or directive footprint (e.g., `RESW` adds `operand * 3`). It also handles block tracking by swapping LCs when a `USE` directive is encountered.
+- **`pass1.py` (Pass 1b):** This module is merely an orchestrator. Once all source lines are processed by the parser, it triggers `adjust_final_blocks` to sequentially place the blocks in memory (`DEFAULT` -> `DEFAULTB` -> `POOL` -> `CDATA` -> `CBLKS`). Absolute addresses for all symbols are then computed by adding the relative LC to the block's absolute starting address.
 
 ## 5. Pass 2 Implementation
 Pass 2 focuses entirely on translation.
@@ -56,9 +55,9 @@ The final object program is structured strictly according to SIC/XE standards:
 The assembler is designed to fail gracefully. Instead of crashing via unhandled Python exceptions, it catches logical errors and generates an `error.txt` file.
 Scenarios handled include:
 - Invalid or unrecognized mnemonics.
-- Unidentified block names in `USE` directives.
-- Undefined symbols used as operands.
-- POOLVAR failures, where a pool variable is physically placed too far from the instruction to be reached via PC or Base-relative addressing.
+- **Unidentified Block Names:** Using a `USE` directive with an unregistered block.
+- **Unidentified Symbol:** Referencing a label that doesn't exist in the Symbol Table (raises a formatted error specifying the PC and the missing symbol).
+- **POOLVAR Error:** Attempting to address a literal pool variable that is out of range for both PC and Base-relative addressing (raises a formatted error specifying the PC and the unreachable variable).
 
 ## 9. Bonus: Memory Visualization GUI
 To enhance the testing and debugging experience, a standalone GUI tool was developed using `tkinter`.
